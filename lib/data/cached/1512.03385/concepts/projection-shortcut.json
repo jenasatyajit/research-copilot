@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Projection shortcut",
+    "definition": "A projection shortcut is a learned linear transformation (typically implemented as a 1×1 convolution) applied to the input of a residual block to match its spatial and channel dimensions with the output of the residual function before element-wise addition.",
+    "simpleExplanation": "In a residual network, the shortcut connection usually just passes the input directly (identity) so it can be added to the learned residual. But if the residual block changes the number of channels or the spatial size, you can't add them directly because the shapes don't match. A projection shortcut solves this by applying a small learned transformation—a 1×1 convolution—to the input to resize it to match the output shape. This lets the addition still work while only adding a few extra parameters.",
+    "analogy": "Imagine you have a letter written in English and you need to add it to a document that's now in French. If the formats are the same (both English), you just staple them together (identity shortcut). But if the document switched to French, you need a translator to convert your letter into French first. The projection shortcut is that translator—it adapts the input's 'language' (dimensions) to match the output's.",
+    "whyUsedHere": "In ResNet, projection shortcuts (option B) are used only when the residual block increases the number of channels or halves the spatial size (e.g., at the transition between feature map sizes). The authors found that using identity shortcuts with zero-padding for dimension increase (option A) works nearly as well, but projection shortcuts give a slight accuracy improvement (1–2%) by avoiding the zero-padded dimensions that have no residual learning. They are not essential, but are used in the deeper ResNet-50/101/152 models for better efficiency and accuracy.",
+    "prerequisites": [
+      "Identity shortcut",
+      "Residual block",
+      "Skip connection",
+      "1x1 convolution"
+    ],
+    "related": [
+      "Identity shortcut",
+      "Bottleneck block",
+      "Dimension matching",
+      "Linear projection"
+    ]
+  }
+}

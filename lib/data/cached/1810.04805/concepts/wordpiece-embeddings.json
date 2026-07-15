@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "WordPiece embeddings",
+    "definition": "WordPiece embeddings are subword-level token representations learned by first splitting text into a fixed-size vocabulary of common subword units using a data-driven segmentation algorithm, then mapping each subword to a dense vector.",
+    "simpleExplanation": "Instead of treating whole words as tokens, WordPiece breaks rare words into smaller, more common pieces (like 'play' into 'play' and '##ing'). This keeps the vocabulary manageable (30,000 tokens) and allows the model to handle any word by combining known subwords. The embedding for each subword is learned during pre-training.",
+    "analogy": "Think of building a toy set with Lego bricks: instead of having a separate mold for every possible toy car, you have a set of standard brick shapes. You can combine them to build almost any car, and the bricks themselves (the subwords) are reusable and shareable across different words.",
+    "whyUsedHere": "BERT uses WordPiece embeddings to balance vocabulary size and coverage: the 30,000 subword tokens are small enough for efficient training but large enough to represent any English text via composition. This avoids out-of-vocabulary problems and enables the model to learn meaningful subword-level patterns.",
+    "prerequisites": [
+      "Tokenization",
+      "Word embeddings (e.g., word2vec, GloVe)",
+      "Subword tokenization methods (e.g., BPE)",
+      "Transformer architecture"
+    ],
+    "related": [
+      "Byte-Pair Encoding (BPE)",
+      "SentencePiece",
+      "Unigram Language Model Tokenization",
+      "Contextual embeddings (e.g., ELMo)"
+    ]
+  }
+}

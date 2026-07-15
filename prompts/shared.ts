@@ -19,9 +19,12 @@ export function clip(text: string, max: number): string {
 }
 
 /** Compact header describing the paper for prompt context. */
-export function paperHeader(paper: Pick<ProcessedPaper, "title" | "authors" | "abstract">): string {
+export function paperHeader(
+  paper: Pick<ProcessedPaper, "title" | "authors" | "abstract">
+): string {
   const authors = paper.authors.length
-    ? paper.authors.slice(0, 8).join(", ") + (paper.authors.length > 8 ? " et al." : "")
+    ? paper.authors.slice(0, 8).join(", ") +
+      (paper.authors.length > 8 ? " et al." : "")
     : "Unknown authors"
   const parts = [`Title: ${paper.title}`, `Authors: ${authors}`]
   if (paper.abstract) parts.push(`Abstract: ${clip(paper.abstract, 1500)}`)

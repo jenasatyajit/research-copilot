@@ -5,7 +5,9 @@ import type { ProcessedPaper } from "@/types"
 import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
 
 /** 5-minute explanation — streamed long-form markdown for a CS undergraduate. */
-export function buildExplanationMessages(paper: ProcessedPaper): ChatMessageInput[] {
+export function buildExplanationMessages(
+  paper: ProcessedPaper
+): ChatMessageInput[] {
   const user = [
     paperHeader(paper),
     "",

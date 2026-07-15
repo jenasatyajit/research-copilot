@@ -42,7 +42,7 @@ export const sectionsResponseSchema = z.object({
         explanation: z.string(),
         keyTakeaway: z.string(),
         whyItMatters: z.string(),
-      }),
+      })
     )
     .min(1),
 })
@@ -54,7 +54,7 @@ export const conceptsResponseSchema = z.object({
       z.object({
         term: z.string(),
         short: z.string(),
-      }),
+      })
     )
     .min(1),
 })

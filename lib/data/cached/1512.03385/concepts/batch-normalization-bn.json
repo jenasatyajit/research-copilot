@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Batch Normalization (BN)",
+    "definition": "Batch Normalization is a technique that normalizes the activations of a layer across a mini-batch to have zero mean and unit variance, followed by a learned affine transformation, to stabilize and accelerate training.",
+    "simpleExplanation": "It adjusts the outputs of a layer so they have a consistent scale and center, which prevents values from becoming too large or too small. This makes the network more stable and allows it to learn faster with higher learning rates.",
+    "analogy": "Imagine a factory assembly line where each workstation receives parts that vary wildly in size. Batch Normalization is like adding a standardizer that resizes each part to a uniform size before passing it on, making the job of each workstation easier and more predictable.",
+    "whyUsedHere": "The paper uses BN after every convolution and before activation to enable training of very deep networks (e.g., 152 layers) by mitigating the vanishing/exploding gradient problem and allowing higher learning rates without divergence.",
+    "prerequisites": [
+      "Gradient descent",
+      "Backpropagation",
+      "Neural network layers",
+      "Activation functions"
+    ],
+    "related": [
+      "Weight initialization (e.g., He initialization)",
+      "Dropout",
+      "Layer normalization",
+      "Residual connections"
+    ]
+  }
+}

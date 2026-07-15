@@ -14,13 +14,17 @@ export function Outline() {
     return (
       <Empty className="border-0 py-10">
         <EmptyTitle className="text-sm">No sections detected</EmptyTitle>
-        <EmptyDescription>This paper&apos;s structure couldn&apos;t be recovered.</EmptyDescription>
+        <EmptyDescription>
+          This paper&apos;s structure couldn&apos;t be recovered.
+        </EmptyDescription>
       </Empty>
     )
   }
 
   function scrollTo(id: string) {
-    document.getElementById(`sec-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+    document
+      .getElementById(`sec-${id}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
   return (

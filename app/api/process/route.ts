@@ -1,4 +1,5 @@
 import { readJson } from "@/lib/api"
+import { getCachedArxivId, loadCachedData } from "@/lib/cache"
 import { AppError, errorResponse } from "@/lib/errors"
 import { processPaper } from "@/lib/fetch-paper"
 
@@ -11,6 +12,15 @@ export async function POST(req: Request) {
     if (!url || typeof url !== "string") {
       throw new AppError("INVALID_URL", "Please provide a paper URL.")
     }
+
+    const cachedId = getCachedArxivId(url)
+    if (cachedId) {
+      const cachedPaper = loadCachedData(cachedId, "process.json")
+      if (cachedPaper) {
+        return Response.json({ paper: cachedPaper })
+      }
+    }
+
     const paper = await processPaper(url)
     return Response.json({ paper })
   } catch (err) {

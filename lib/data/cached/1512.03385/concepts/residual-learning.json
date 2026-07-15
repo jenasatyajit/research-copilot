@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Residual learning",
+    "definition": "Residual learning is a technique where a neural network layer is trained to learn the residual function F(x) = H(x) - x, the deviation from an identity mapping, rather than learning the desired underlying mapping H(x) directly, with the original mapping recast as F(x) + x.",
+    "simpleExplanation": "Instead of trying to learn a complex transformation from scratch, the network learns how to adjust or correct the input. It starts with the input identity (x) and only learns the 'residual' or change needed to get to the desired output. This makes optimization easier because if the optimal function is close to the identity, the network only needs to learn small perturbations.",
+    "analogy": "Imagine you are trying to draw a perfect circle on a whiteboard. Instead of drawing it freehand from scratch (learning the full transformation), you first trace a faint circle stencil (the identity mapping) and then only adjust small parts that are off (learning the residual corrections). This is much easier than drawing the entire circle perfectly in one go.",
+    "whyUsedHere": "Residual learning is introduced to solve the 'degradation problem' observed in very deep plain networks: as depth increases, training error increases even though the deeper model should contain the shallower one as a subspace. By reformulating layers to learn residuals, the optimizer can more easily push the weights toward zero if an identity mapping is optimal, and even otherwise it provides a good preconditioning, enabling successful training of networks with over 100 layers.",
+    "prerequisites": [
+      "Neural network basics (layers, activation functions, backpropagation)",
+      "Gradient descent optimization",
+      "Vanishing/exploding gradients problem",
+      "Identity mapping concept"
+    ],
+    "related": [
+      "Highway networks (gated shortcut connections)",
+      "Batch normalization (helps training stability)",
+      "Bottleneck residual blocks (1x1 convolutions for efficiency)",
+      "DenseNet (concatenating features from all previous layers)"
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 import { parseBody, readJson } from "@/lib/api"
+import { getCachedArxivId, loadCachedData } from "@/lib/cache"
 import { env } from "@/lib/env"
 import { errorResponse } from "@/lib/errors"
 import { completeJson } from "@/lib/openrouter"
@@ -14,9 +15,21 @@ export async function POST(req: Request) {
     const body = await readJson<{ paper?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
 
+    const cachedId = getCachedArxivId(paper.arxivId)
+    if (cachedId) {
+      const cachedSummary = loadCachedData(cachedId, "summary.json")
+      if (cachedSummary) {
+        return Response.json(cachedSummary)
+      }
+    }
+
     const summary = await completeJson(
-      { model: env.fastModel, messages: buildSummaryMessages(paper), temperature: 0.3 },
-      summarySchema,
+      {
+        model: env.fastModel,
+        messages: buildSummaryMessages(paper),
+        temperature: 0.3,
+      },
+      summarySchema
     )
     return Response.json({ summary })
   } catch (err) {

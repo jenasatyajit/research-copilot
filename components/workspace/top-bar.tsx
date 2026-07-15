@@ -1,22 +1,41 @@
 "use client"
 
-import { PanelLeftIcon, PanelRightIcon, PlusIcon, TelescopeIcon } from "lucide-react"
+import {
+  PanelLeftIcon,
+  PanelRightIcon,
+  PlusIcon,
+  TelescopeIcon,
+} from "lucide-react"
 
 import { usePaperSession } from "@/components/providers/paper-session"
 import { MindMapDialog } from "@/components/workspace/mind-map-dialog"
 import { ThemeToggle } from "@/components/workspace/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import type { ViewMode } from "@/components/workspace/workspace"
 
 interface TopBarProps {
   showLeft: boolean
   showRight: boolean
   onToggleLeft: () => void
   onToggleRight: () => void
+  viewMode: ViewMode
+  onViewModeChange: (mode: ViewMode) => void
 }
 
-export function TopBar({ showLeft, showRight, onToggleLeft, onToggleRight }: TopBarProps) {
+export function TopBar({
+  showLeft,
+  showRight,
+  onToggleLeft,
+  onToggleRight,
+  viewMode,
+  onViewModeChange,
+}: TopBarProps) {
   const { paper, reset } = usePaperSession()
 
   return (
@@ -25,8 +44,38 @@ export function TopBar({ showLeft, showRight, onToggleLeft, onToggleRight }: Top
         <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/12 text-primary">
           <TelescopeIcon className="size-3.5" />
         </span>
-        <span className="truncate text-sm font-medium text-foreground/90">{paper?.title}</span>
+        <span className="truncate text-sm font-medium text-foreground/90">
+          {paper?.title}
+        </span>
       </div>
+
+      {paper ? (
+        <>
+          <Separator orientation="vertical" className="mx-1 h-5" />
+          <div className="flex items-center rounded-md bg-muted/50 p-0.5">
+            <button
+              onClick={() => onViewModeChange("analysis")}
+              className={`rounded-[5px] px-2.5 py-1 text-xs font-medium transition-colors ${
+                viewMode === "analysis"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              AI Analysis
+            </button>
+            <button
+              onClick={() => onViewModeChange("pdf")}
+              className={`rounded-[5px] px-2.5 py-1 text-xs font-medium transition-colors ${
+                viewMode === "pdf"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Original PDF
+            </button>
+          </div>
+        </>
+      ) : null}
 
       <div className="ml-auto flex items-center gap-1">
         <Tooltip>

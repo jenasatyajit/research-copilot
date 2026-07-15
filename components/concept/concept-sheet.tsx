@@ -14,11 +14,21 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
   return (
     <div className="flex flex-col gap-1.5">
-      <h3 className="text-xs font-medium tracking-wide text-muted-foreground">{label}</h3>
-      <div className="text-sm leading-relaxed text-foreground/90">{children}</div>
+      <h3 className="text-xs font-medium tracking-wide text-muted-foreground">
+        {label}
+      </h3>
+      <div className="text-sm leading-relaxed text-foreground/90">
+        {children}
+      </div>
     </div>
   )
 }
@@ -33,9 +43,13 @@ export function ConceptSheet() {
         <SheetHeader className="border-b">
           <div className="flex items-center gap-2">
             <LightbulbIcon className="size-4 text-primary" />
-            <SheetTitle className="text-base">{activeConcept?.term ?? "Concept"}</SheetTitle>
+            <SheetTitle className="text-base">
+              {activeConcept?.term ?? "Concept"}
+            </SheetTitle>
           </div>
-          <SheetDescription>Concept explained in the context of this paper.</SheetDescription>
+          <SheetDescription>
+            Concept explained in the context of this paper.
+          </SheetDescription>
         </SheetHeader>
 
         <div className="scroll-thin flex-1 overflow-y-auto p-5">
@@ -74,7 +88,9 @@ function ConceptDetailBody() {
       <Field label="Definition">{data.definition}</Field>
       <Field label="In plain terms">{data.simpleExplanation}</Field>
       <Field label="Analogy">
-        <div className="rounded-lg bg-muted/60 p-3 italic text-foreground/80">{data.analogy}</div>
+        <div className="rounded-lg bg-muted/60 p-3 text-foreground/80 italic">
+          {data.analogy}
+        </div>
       </Field>
       <Field label="Why it's used here">{data.whyUsedHere}</Field>
 

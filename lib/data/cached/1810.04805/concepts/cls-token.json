@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "[CLS] token",
+    "definition": "The [CLS] token is a special classification token prepended to every input sequence, whose final hidden state from the Transformer encoder serves as an aggregate sequence representation for downstream classification tasks.",
+    "simpleExplanation": "BERT adds a special token [CLS] at the start of every input. After processing through all Transformer layers, the output vector corresponding to [CLS] is designed to capture information from the entire sequence. This vector is then used directly for classification tasks, like determining sentiment or sentence relationships.",
+    "analogy": "Imagine you are asked to summarize a long movie. You have a notepad labeled 'summary' at the top of your page. After watching the movie, you write your overall impression in that dedicated summary spot. The [CLS] token works like that reserved summary spot in BERT's output.",
+    "whyUsedHere": "In this paper, the [CLS] token's final hidden state C is used as the input to a classification layer for tasks like GLUE, NLI, and sentiment analysis. For SQuAD 2.0, C is also used to compute a no-answer score. It provides a single fixed-size representation for each input, enabling simple fine-tuning without task-specific architecture changes.",
+    "prerequisites": [
+      "Transformer self-attention mechanism",
+      "Hidden state representation in neural networks",
+      "Sequence classification task (e.g., sentiment analysis)",
+      "Fine-tuning in transfer learning"
+    ],
+    "related": [
+      "[SEP] token for separating sentence pairs",
+      "Pooling strategies (e.g., mean pooling, max pooling)",
+      "Next Sentence Prediction (NSP) objective",
+      "Sentence embedding models (e.g., Sentence-BERT)"
+    ]
+  }
+}

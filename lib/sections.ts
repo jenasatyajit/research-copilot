@@ -32,7 +32,8 @@ const KEYWORD_HEADINGS = [
   "appendix",
 ]
 
-const NUMBERED = /^(?:(\d{1,2}(?:\.\d{1,2}){0,2})\.?|([IVXLCDM]+)\.|([A-Z])\.)\s+([A-Za-z].{0,75})$/
+const NUMBERED =
+  /^(?:(\d{1,2}(?:\.\d{1,2}){0,2})\.?|([IVXLCDM]+)\.|([A-Z])\.)\s+([A-Za-z].{0,75})$/
 const KEYWORD = new RegExp(`^(${KEYWORD_HEADINGS.join("|")})\\b[:.]?\\s*$`, "i")
 
 function slugify(value: string, index: number): string {

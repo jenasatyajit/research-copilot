@@ -35,14 +35,19 @@ const DEFAULT_STATUS: Record<AppErrorCode, number> = {
 
 /** Default recovery hints, keyed by code. */
 const DEFAULT_HINT: Partial<Record<AppErrorCode, string>> = {
-  INVALID_URL: "Paste a full arXiv link (arxiv.org/abs/...) or a direct PDF URL.",
-  UNSUPPORTED_SOURCE: "Only arXiv links and direct PDF URLs are supported right now.",
+  INVALID_URL:
+    "Paste a full arXiv link (arxiv.org/abs/...) or a direct PDF URL.",
+  UNSUPPORTED_SOURCE:
+    "Only arXiv links and direct PDF URLs are supported right now.",
   DOWNLOAD_FAILED: "We couldn't reach that file. Check the link and try again.",
-  EXTRACTION_FAILED: "We couldn't read text from this PDF. It may be scanned or image-only.",
+  EXTRACTION_FAILED:
+    "We couldn't read text from this PDF. It may be scanned or image-only.",
   EMPTY_PAPER: "This document didn't contain enough readable text to analyze.",
-  MISSING_API_KEY: "Set OPENROUTER_API_KEY in .env.local, then restart the dev server.",
+  MISSING_API_KEY:
+    "Set OPENROUTER_API_KEY in .env.local, then restart the dev server.",
   AI_TIMEOUT: "The model took too long. Try again in a moment.",
-  TOKEN_LIMIT: "This paper is very long. Try a shorter paper or a model with a larger context.",
+  TOKEN_LIMIT:
+    "This paper is very long. Try a shorter paper or a model with a larger context.",
   AI_ERROR: "The AI provider returned an error. Try again shortly.",
 }
 
@@ -51,7 +56,11 @@ export class AppError extends Error {
   readonly status: number
   readonly hint?: string
 
-  constructor(code: AppErrorCode, message: string, options: AppErrorOptions = {}) {
+  constructor(
+    code: AppErrorCode,
+    message: string,
+    options: AppErrorOptions = {}
+  ) {
     super(message, { cause: options.cause })
     this.name = "AppError"
     this.code = code
@@ -62,7 +71,7 @@ export class AppError extends Error {
   toResponse(): Response {
     return Response.json(
       { error: { code: this.code, message: this.message, hint: this.hint } },
-      { status: this.status },
+      { status: this.status }
     )
   }
 }

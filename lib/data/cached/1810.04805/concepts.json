@@ -1,0 +1,54 @@
+{
+  "concepts": [
+    {
+      "id": "concept-0",
+      "term": "Bidirectional Transformer",
+      "short": "A Transformer encoder that allows each token to attend to both left and right context in all layers, unlike unidirectional models like OpenAI GPT."
+    },
+    {
+      "id": "concept-1",
+      "term": "Masked Language Model (MLM)",
+      "short": "A pre-training objective where 15% of input tokens are randomly masked and the model must predict them using full bidirectional context."
+    },
+    {
+      "id": "concept-2",
+      "term": "Next Sentence Prediction (NSP)",
+      "short": "A binary pre-training task where the model predicts whether sentence B follows sentence A, teaching sentence-level relationships."
+    },
+    {
+      "id": "concept-3",
+      "term": "Fine-tuning",
+      "short": "The process of taking a pre-trained BERT model and training all its parameters on a downstream task with a small task-specific output layer."
+    },
+    {
+      "id": "concept-4",
+      "term": "Pre-training",
+      "short": "Training BERT on large unlabeled text corpora using MLM and NSP objectives to learn general language representations."
+    },
+    {
+      "id": "concept-5",
+      "term": "Self-attention",
+      "short": "The core mechanism in Transformers that computes weighted representations of all tokens in a sequence, enabling bidirectional context fusion."
+    },
+    {
+      "id": "concept-6",
+      "term": "[CLS] token",
+      "short": "A special token prepended to every input sequence; its final hidden state is used as the aggregate representation for classification tasks."
+    },
+    {
+      "id": "concept-7",
+      "term": "[SEP] token",
+      "short": "A special separator token used to delimit two sentences in a single input sequence, e.g., question and passage."
+    },
+    {
+      "id": "concept-8",
+      "term": "WordPiece embeddings",
+      "short": "A subword tokenization method that splits rare words into smaller units, with a 30,000 token vocabulary used by BERT."
+    },
+    {
+      "id": "concept-9",
+      "term": "GLUE benchmark",
+      "short": "A collection of nine natural language understanding tasks used to evaluate models like BERT; BERT achieved state-of-the-art scores on it."
+    }
+  ]
+}

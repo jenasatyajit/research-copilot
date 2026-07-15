@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Masked Language Model (MLM)",
+    "definition": "A masked language model randomly hides some tokens in a sequence and trains the model to predict the original token using only its surrounding context from both directions.",
+    "simpleExplanation": "BERT is trained by taking a sentence, hiding some words (replacing them with [MASK]), and asking the model to guess the missing words from the remaining context. Unlike a standard language model that only uses left-to-right context, MLM forces the model to look at both sides of the masked word, building a truly bidirectional understanding.",
+    "analogy": "It's like a fill-in-the-blank quiz: 'The ___ barks at the mailman.' You need to guess 'dog' by reading all the other words, both before and after the blank. Free association puzzles like this teach deeper understanding than simply guessing the next word in a sequence.",
+    "whyUsedHere": "This paper uses MLM specifically to enable deep bidirectional pre-training. Standard left-to-right language models are unidirectional and cannot condition on both left and right context simultaneously. MLM solves this by allowing a token to 'see itself' indirectly, so the model learns robust, bidirectional representations without trivial shortcuts.",
+    "prerequisites": [
+      "Self-attention mechanism (Transformer attention layer)",
+      "Language modeling (predicting the next token in a sequence)",
+      "WordPiece tokenization",
+      "Fine-tuning vs. feature-based transfer learning"
+    ],
+    "related": [
+      "Cloze task (the linguistic task MLM adapts)",
+      "Denoising auto-encoder (similar reconstruction objective, but MLM only predicts masked tokens)",
+      "Next Sentence Prediction (NSP) — BERT's second pre-training task",
+      "ELMo (uses shallow bidirectional features; contrast to BERT's deep bidirectionality)"
+    ]
+  }
+}

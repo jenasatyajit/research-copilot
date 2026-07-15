@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Self-attention",
+    "definition": "Self-attention is an attention mechanism where each element in a sequence computes a weighted combination of all other elements, allowing the model to capture dependencies across the entire sequence in a single operation.",
+    "simpleExplanation": "Self-attention lets each word in a sentence look at every other word to decide which ones are most relevant for understanding its meaning. For example, in 'The cat sat on the mat because it was tired', the word 'it' can directly attend to 'cat' to resolve what 'it' refers to. This is done by computing similarity scores between each pair of words and using those scores to blend information from all words together.",
+    "analogy": "Imagine a team brainstorming session. Before anyone writes their final idea, each person listens to everyone else's initial thoughts, then weighs them based on relevance and combines them into a refined personal perspective. Self-attention works the same way: each token 'listens' to all other tokens, computes how much attention to pay to each, and mixes their representations accordingly.",
+    "whyUsedHere": "The Transformer replaces recurrence entirely with self-attention because self-attention connects all positions in constant sequential operations (instead of O(n) for RNNs), enabling full parallelization during training and better capturing long-range dependencies without path length growth (as shown in Table 1). The paper uses multi-head self-attention in the encoder and masked self-attention in the decoder to preserve auto-regressive property.",
+    "prerequisites": [
+      "Attention mechanism (query-key-value framework)",
+      "Dot product and softmax function",
+      "Sequence-to-sequence models and auto-regressive generation",
+      "Weighted sum of vectors"
+    ],
+    "related": [
+      "Multi-head attention (Section 3.2.2)",
+      "Scaled dot-product attention (Section 3.2.1)",
+      "Positional encoding (Section 3.5)",
+      "Transformer architecture (Figure 1)"
+    ]
+  }
+}

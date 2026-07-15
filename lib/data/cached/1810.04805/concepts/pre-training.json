@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Pre-training",
+    "definition": "Pre-training is the process of learning general language representations from a large, unlabeled corpus by optimizing unsupervised objectives, before adapting the model to specific downstream tasks.",
+    "simpleExplanation": "Instead of training a language model from scratch for each new task (like question answering or sentiment analysis), we first teach it general patterns of language using a huge amount of plain text—books, Wikipedia, etc. This gives the model a strong foundation; then, for a specific task, we only need a small amount of labeled data to fine-tune it.",
+    "analogy": "Think of pre-training like a general music education—learning scales, chords, and rhythm from many pieces of music. After that, learning to play a specific song (the downstream task) is much faster because the fundamental skills are already in place.",
+    "whyUsedHere": "BERT uses pre-training to learn deep, bidirectional representations of language via two unsupervised tasks: Masked LM (predicting randomly hidden words) and Next Sentence Prediction (understanding sentence relationships). This pre-trained model is then fine-tuned with a single additional output layer for tasks like question answering and natural language inference, achieving state-of-the-art results without task-specific architecture changes.",
+    "prerequisites": [
+      "supervised learning",
+      "unsupervised learning",
+      "transfer learning",
+      "Transformer architecture"
+    ],
+    "related": [
+      "fine-tuning",
+      "feature-based approach (e.g., ELMo)",
+      "self-supervised learning",
+      "language model (LM)"
+    ]
+  }
+}

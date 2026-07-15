@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Fine-tuning",
+    "definition": "Fine-tuning is the process of taking a pre-trained model and updating all its parameters on a smaller, task-specific labeled dataset to adapt it for a particular downstream task.",
+    "simpleExplanation": "Imagine you have a model that already understands general language patterns from reading billions of words. To make it good at a specific job—like answering questions or judging if two sentences mean the same thing—you take that pre-trained model and give it a little extra training on examples for that job. This extra training adjusts the model's internal numbers slightly so it performs well on the new task.",
+    "analogy": "Think of a chef who has learned to cook hundreds of dishes from around the world (pre-training). When asked to specialize in making perfect paella, they don't start from scratch; they just practice a few paella recipes with local ingredients to tweak their technique. That practice session is the fine-tuning.",
+    "whyUsedHere": "BERT is designed to be pre-trained once on unlabeled text and then fine-tuned separately for each downstream task (e.g., question answering, natural language inference) by adding only a small classification layer on top and updating all parameters end-to-end. This avoids building task-specific architectures from scratch and achieves state-of-the-art results with minimal changes.",
+    "prerequisites": [
+      "pre-training",
+      "Transformer (self-attention mechanism)",
+      "supervised learning",
+      "transfer learning"
+    ],
+    "related": [
+      "feature-based transfer (e.g., ELMo)",
+      "multi-task learning",
+      "few-shot learning",
+      "domain adaptation"
+    ]
+  }
+}

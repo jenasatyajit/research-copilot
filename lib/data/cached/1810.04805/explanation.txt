@@ -1,0 +1,64 @@
+## Background — the context and what you need to know first
+
+Before BERT, the dominant way to use unlabeled text for NLP was to **pre-train a language model** and then adapt it to a specific task. A language model (LM) predicts the next word given previous words. Two popular approaches were:
+
+- **Feature-based**: Pre-train a model, then use its hidden states as extra features in a separate task-specific model. Example: **ELMo** (Peters et al., 2018). ELMo trains a left-to-right LSTM (reads left to right) and a right-to-left LSTM, then concatenates their outputs. But the two LSTMs never talk to each other – the representation for a word is just a shallow stack of two independent directions.
+
+- **Fine-tuning**: Pre-train a full model, then add a small task-specific layer and train everything together on the labeled dataset. Example: **OpenAI GPT** (Radford et al., 2018). GPT uses a Transformer decoder (like in machine translation) that only attends to words to its left. It’s a standard left-to-right LM.
+
+Both methods used **unidirectional** LMs. You need to know what a Transformer is: it uses **self-attention** – each token can look at all other tokens in the sequence and decide how much to weight them. In a left-to-right Transformer, each token can only attend to tokens before it (masking future tokens). In a bidirectional Transformer, each token can attend to all tokens on both sides.
+
+## The Problem — what wasn't working before and why it's hard
+
+Unidirectional LMs have a fundamental limitation: they cannot condition on both left and right context simultaneously. For token-level tasks like **question answering** (SQuAD), you need to know the whole passage and the whole question. A left-to-right model that sees the answer words after the question can't use the later passage context to better interpret the earlier question. Even for sentence-level tasks like **natural language inference** (determining if one sentence implies another), missing right-side context hurts.
+
+Why not just train a bidirectional LM? If you let each word see both sides, the model can trivially “cheat” – for example, if you try to predict the word at position *i*, it already sees the same word (or a copy) in the context. That makes the task too easy and the model learns nothing useful. So prior work settled for shallow bidirectionality: train two separate LMs (left-to-right and right-to-left) and combine them afterwards. That’s the approach in ELMo. It’s better than nothing, but it’s not deep bidirectional fusion – each layer of the left model doesn't know what the right model is doing.
+
+Another problem: both ELMo and GPT treat sentences as isolated units. For tasks that need to compare two sentences (e.g., given a question and a paragraph, find the answer), they require extra architecture (like cross-attention) to let the two sentences interact. That adds complexity.
+
+## The Method — how the proposed approach works, step by step, with intuition
+
+BERT solves both problems with two clever pre-training tasks.
+
+**First: Masked Language Model (MLM)**. Instead of predicting every word left-to-right, BERT randomly masks 15% of the input tokens and then tries to predict those masked tokens using the full context (both left and right). This is like the “Cloze” test from school – fill in the blank. For example: “I went to the [MASK] to buy milk.” The model sees both “went” (left) and “to buy milk” (right) and must predict “store”. Because the model never sees the actual masked token, it can’t cheat. This forces it to learn deep bidirectional representations: every layer of the Transformer can attend to all tokens, so the representation of a masked word fuses information from both sides.
+
+But there's a mismatch: during fine-tuning, there are no [MASK] tokens. To mitigate this, BERT doesn't always replace the chosen 15% with [MASK]. Instead:
+- 80% of the time: replace with [MASK]
+- 10%: replace with a random word
+- 10%: keep the word unchanged
+
+This slight noise forces the model to maintain a good representation of every token, not just the masked ones. The random words also prevent the model from simply memorizing that a certain positional embedding corresponds to a missing word.
+
+**Second: Next Sentence Prediction (NSP)**. To handle tasks that require understanding the relationship between two sentences, BERT also pre-trains on a binary classification: given two sentences A and B, is B the actual next sentence in the document? 50% of the time yes, 50% no (random sentence). The model uses the special [CLS] token's final hidden state to make this decision. This teaches the model to connect ideas across sentences – crucial for question answering (QA) and natural language inference (NLI).
+
+**Architecture details**: BERT is a multi-layer bidirectional Transformer encoder (same as the original Transformer's encoder, with no masking). There are two sizes:
+- BERT_base: 12 layers, 768 hidden size, 12 attention heads, 110M parameters.
+- BERT_large: 24 layers, 1024 hidden size, 16 attention heads, 340M parameters.
+
+Input: tokens are WordPiece (30k vocabulary). Each token's input embedding is the sum of token embedding, segment embedding (A or B sentence), and position embedding. Two sentences are packed into one sequence separated by [SEP] token.
+
+**Fine-tuning**: Minimal changes per task. For classification, take the [CLS] representation and add a softmax layer. For QA, take the final hidden vectors for each token and learn start/end vectors to predict answer span. All parameters are fine-tuned together. This unified architecture means you don't need task-specific cross-attention layers – the self-attention already handles pairs.
+
+## Main Findings — what the experiments showed, with concrete numbers when available
+
+BERT broke state-of-the-art on 11 NLP tasks. Key numbers from the paper:
+
+- **GLUE** (a suite of 9 tasks): BERT_large achieved **80.5%**, up 7.7 absolute points from the prior best (OpenAI GPT at 72.8). On the **MultiNLI** subtask: **86.7%** accuracy (+4.6).
+- **SQuAD 1.1** (question answering): BERT_large ensemble **93.2 F1** (+1.5 over previous best). Single model already surpassed prior ensemble.
+- **SQuAD 2.0** (with unanswerable questions): BERT_large **83.1 F1** (+5.1 over previous best).
+- **SWAG** (commonsense inference): BERT_large **86.3%** accuracy, vs. OpenAI GPT's 78.0% (+8.3).
+
+**Ablation studies** confirmed:
+- Removing **NSP** hurts QNLI, MNLI, SQuAD significantly.
+- Replacing MLM with a left-to-right LM (like GPT) causes large drops, especially on SQuAD (F1 drops from 88.5 to 77.8). Adding a BiLSTM on top helps a little but still far behind.
+- **Model size matters**: larger models consistently improve results even on small datasets (e.g., MRPC with only 3,600 examples). BERT_large beats BERT_base across all tasks.
+
+## Why It Matters — practical importance and what it unlocks
+
+BERT showed that a single pre-trained model can be fine-tuned for many different tasks with minimal architectural changes. This dramatically reduced the engineering effort needed for each new NLP problem. Before BERT, top systems often had complex task-specific design (e.g., cross-attention networks for QA, or bi-attention for NLI). With BERT, you just plug in the input and output.
+
+The **bidirectional pre-training** was the key insight. It proved that you can train deep bidirectional representations without the "cheating" problem by using the masked LM objective. This opened the door to a wave of follow-up work (RoBERTa, ALBERT, etc.) all building on the same idea.
+
+Practically, BERT made high-quality NLP accessible. Pre-trained models are released publicly, and with a few hours on a GPU you can get near-human performance on tasks like question answering. It also showed that **scale helps**: larger models, pre-trained on more data, improve even on low-resource tasks – a finding that has driven the trend toward ever-larger language models (GPT-3, T5, etc.).
+
+In short, BERT shifted the NLP paradigm from “engineer a special architecture for each task” to “pre-train a powerful general model, then fine-tune it cheaply.” It’s the foundation for most modern NLP systems.

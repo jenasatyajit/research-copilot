@@ -1,0 +1,10 @@
+{
+  "summary": {
+    "problem": "Adding more layers to a deep network can paradoxically increase training error—the 'degradation problem'—even when vanishing gradients are fixed. Plain networks struggle to learn identity mappings as depth grows.",
+    "solution": "The authors reformulate each stack of layers to learn a residual function F(x) = H(x) - x, rather than directly learning H(x). The building block computes F(x) + x via a shortcut connection that performs identity mapping, adding no extra parameters.",
+    "keyInnovation": "Identity shortcut connections that skip one or more layers, making it far easier to optimize very deep networks. If an identity mapping were optimal, the solver can simply drive the residual to zero instead of learning the identity from scratch.",
+    "results": "152-layer ResNet achieves 3.57% top-5 error on ImageNet test (single-model: 4.49% top-5 validation), winning ILSVRC 2015 classification. On COCO detection, ResNet-101 gives a 28% relative improvement over VGG-16 (mAP@[.5,.95] from 21.2 to 27.2).",
+    "whyItMatters": "Residual learning made practical ultra-deep networks (100+ layers) possible, enabling breakthroughs in image classification, detection, and segmentation. It remains the backbone of most modern vision architectures.",
+    "shouldYouRead": "Anyone learning or building deep CNNs for vision should read this paper: it explains the core idea behind ResNet with clear experiments, making it essential for understanding modern architectures."
+  }
+}

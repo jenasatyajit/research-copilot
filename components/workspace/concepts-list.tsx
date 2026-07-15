@@ -7,12 +7,17 @@ import { LoadError } from "@/components/shared/load-error"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function ConceptsList() {
-  const { concepts, openConcept, retryConcepts, activeConcept } = usePaperSession()
+  const { concepts, openConcept, retryConcepts, activeConcept } =
+    usePaperSession()
 
   if (concepts.status === "error" && concepts.error) {
     return (
       <div className="p-3">
-        <LoadError error={concepts.error} onRetry={retryConcepts} title="Couldn't extract concepts" />
+        <LoadError
+          error={concepts.error}
+          onRetry={retryConcepts}
+          title="Couldn't extract concepts"
+        />
       </div>
     )
   }
@@ -41,7 +46,9 @@ export function ConceptsList() {
           >
             <LightbulbIcon className="mt-0.5 size-3.5 shrink-0 text-primary/70 group-hover:text-primary" />
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="truncate text-sm font-medium text-foreground">{concept.term}</span>
+              <span className="truncate text-sm font-medium text-foreground">
+                {concept.term}
+              </span>
               <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">
                 {concept.short}
               </span>

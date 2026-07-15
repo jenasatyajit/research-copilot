@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Residual connections and layer normalization",
+    "definition": "Residual connections add the input of a sub-layer to its output, and layer normalization normalizes the activations across features to have zero mean and unit variance.",
+    "simpleExplanation": "Residual connections create a shortcut around a sub-layer, allowing the original input to flow directly to the output, which helps train deeper networks by preventing gradients from vanishing. Layer normalization stabilizes the learning process by scaling and shifting the activations to a consistent range, making the model less sensitive to the scale of inputs.",
+    "analogy": "Think of residual connections as a shortcut in a building: you can take the stairs (the sub-layer) or the elevator (the shortcut) to go up; the elevator ensures you still reach the next floor even if the stairs are blocked. Layer normalization is like a thermostat that keeps the temperature in each room consistent, preventing extreme fluctuations that could disrupt the environment.",
+    "whyUsedHere": "In the Transformer, each sub-layer (multi-head attention and feed-forward) is followed by a residual connection and layer normalization to enable training of the deep 6-layer encoder and decoder stacks, allowing gradients to flow smoothly and maintaining stable activations throughout the network.",
+    "prerequisites": [
+      "vanishing gradient problem",
+      "activation functions (ReLU)",
+      "standard neural network layers",
+      "gradient descent optimization"
+    ],
+    "related": [
+      "batch normalization",
+      "dropout regularization",
+      "weight initialization (Xavier/He)",
+      "deep residual networks (ResNet)"
+    ]
+  }
+}

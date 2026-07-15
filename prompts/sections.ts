@@ -15,12 +15,12 @@ export function explainableSections(sections: RawSection[]): RawSection[] {
 /** Section-by-section explanations as a JSON array keyed by sectionId. */
 export function buildSectionsMessages(
   paper: Pick<ProcessedPaper, "title" | "authors" | "abstract">,
-  sections: RawSection[],
+  sections: RawSection[]
 ): ChatMessageInput[] {
   const sectionBlocks = sections
     .map(
       (s) =>
-        `### sectionId: ${s.id}\nHeading: ${s.title}\nText: ${clip(s.content, PER_SECTION_CHARS)}`,
+        `### sectionId: ${s.id}\nHeading: ${s.title}\nText: ${clip(s.content, PER_SECTION_CHARS)}`
     )
     .join("\n\n")
 

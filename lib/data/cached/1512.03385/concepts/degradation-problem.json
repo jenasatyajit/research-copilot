@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Degradation problem",
+    "definition": "The degradation problem is a phenomenon where increasing the depth of a neural network leads to higher training error, not due to overfitting, indicating that deeper models are harder to optimize even when they should theoretically be able to represent the shallower model's solution.",
+    "simpleExplanation": "When you make a neural network deeper by adding more layers, you might expect it to perform at least as well as a shallower version because it can copy the shallow network's weights and set new layers to identity. In practice, deeper plain networks often have higher training error, meaning they can't even fit the training data as well. This shows that the optimization algorithm struggles to find good parameters for the extra layers.",
+    "analogy": "Imagine building a tower of blocks: stacking more blocks should let you build a taller tower, but if the base isn't stable, the tower may collapse under its own weight. Similarly, adding layers to a neural network can make training unstable, causing higher error even on the training set—not because the network is too complex, but because the learning algorithm can't easily find the right adjustments.",
+    "whyUsedHere": "The authors observed the degradation problem when comparing 20-layer and 56-layer plain networks on CIFAR-10 (Figure 1): the 56-layer network had higher training and test error. This motivated them to propose residual learning, where layers learn residual functions (F(x) = H(x) - x) instead of unreferenced mappings, making it easier to approximate identity mappings and thus overcome the optimization difficulty.",
+    "prerequisites": [
+      "Neural network depth",
+      "Training error vs test error",
+      "Gradient vanishing/exploding",
+      "Overfitting"
+    ],
+    "related": [
+      "Residual learning",
+      "Identity mapping",
+      "Optimization difficulty",
+      "Batch normalization"
+    ]
+  }
+}

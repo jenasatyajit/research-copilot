@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Plain network",
+    "definition": "A plain network is a deep neural network constructed by simply stacking layers sequentially, without any skip or shortcut connections, serving as a baseline to isolate the effect of residual learning.",
+    "simpleExplanation": "Think of a plain network as a normal stack of processing steps, where each step takes the output of the previous one and transforms it further. There are no shortcuts that skip layers. The paper uses these plain networks to show that making a network deeper (adding more layers) can actually make it harder to train, even causing the training error to increase. This surprising problem is called the 'degradation problem'.",
+    "analogy": "Imagine you are baking a cake and each layer must be baked one on top of the other without any shortcut that allows the bottom layer to influence the top one directly. If you add more layers, the cake might become harder to bake evenly, and the result could be worse than a shorter cake. That's the problem the paper finds with plain networks.",
+    "whyUsedHere": "The paper uses plain networks as the control group to demonstrate the degradation problem: deeper plain networks (e.g., 34-layer) have higher training error than shallower ones (e.g., 18-layer), even though the deeper network has more capacity. This counterintuitive result motivates the need for residual learning, which by adding skip connections overcomes this optimization difficulty.",
+    "prerequisites": [
+      "Deep neural network architecture (layers, activations, convolutions)",
+      "Stochastic gradient descent (SGD) and backpropagation",
+      "Overfitting vs. underfitting (to understand that degradation is not overfitting)",
+      "Batch normalization (used in all networks to avoid vanishing gradients)"
+    ],
+    "related": [
+      "Residual network (ResNet) – the counterpart that adds shortcut connections",
+      "Degradation problem – the specific optimization difficulty plain networks expose",
+      "Identity mapping – the ideal mapping that skip connections help learn",
+      "Highway networks – a related approach with gated shortcuts"
+    ]
+  }
+}

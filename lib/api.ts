@@ -20,7 +20,9 @@ export function parseBody<T>(schema: z.ZodType<T>, value: unknown): T {
     const issue = result.error.issues[0]
     throw new AppError(
       "BAD_REQUEST",
-      issue ? `Invalid request: ${issue.path.join(".")} ${issue.message}` : "Invalid request body.",
+      issue
+        ? `Invalid request: ${issue.path.join(".")} ${issue.message}`
+        : "Invalid request body."
     )
   }
   return result.data

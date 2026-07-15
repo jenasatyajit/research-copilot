@@ -42,7 +42,7 @@ export default function RootLayout({
         fontSans.variable,
         fontMono.variable,
         fontSerif.variable,
-        "font-sans",
+        "font-sans"
       )}
     >
       <body>

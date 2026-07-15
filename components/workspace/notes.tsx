@@ -32,7 +32,9 @@ export function Notes() {
   return (
     <div className="flex h-full flex-col gap-2 p-3">
       <div className="flex items-center justify-between px-0.5">
-        <span className="text-xs font-medium text-muted-foreground">Your notes</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Your notes
+        </span>
         <span className="text-[0.7rem] text-muted-foreground/70">
           {saved ? "Saved" : value ? "Editing…" : ""}
         </span>

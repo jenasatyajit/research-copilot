@@ -1,0 +1,93 @@
+## Background
+
+Sequence-to-sequence tasks like machine translation map an input sentence (e.g., English) to an output sentence (e.g., German). Before 2017, the standard architecture was an **encoder-decoder**:
+
+- **Encoder** reads the input sentence and produces a sequence of hidden states.
+- **Decoder** generates the output sentence one word at a time, using the encoder’s states and its own previous outputs.
+
+These models used either **recurrent neural networks (RNNs)** – like LSTMs and GRUs – or **convolutional neural networks (CNNs)**. RNNs process tokens left to right, updating a hidden state at each step. CNNs slide a window over the sequence, detecting local patterns.
+
+**Attention** was already a popular add-on: it let the decoder look back at the encoder’s states, focusing on relevant input words when generating each output word. But it was always paired with an RNN or CNN backbone.
+
+## The Problem
+
+- **RNNs are inherently sequential**: each step depends on the previous hidden state. This means you cannot parallelize across positions in a training example. For long sentences, this becomes a bottleneck.
+- **Long-range dependencies are hard**: signals must travel through many RNN steps or many CNN layers. The path length between distant tokens grows linearly (RNN) or logarithmically (dilated CNN), making it harder to learn connections like “The cat… that chased the mouse… **is** tired.”
+- **CNNs need many layers** to cover the full sequence, and their fixed kernel size limits the receptive field unless you stack deeply.
+
+In short: the dominant approaches traded away parallelism and long-range modeling for the ability to handle sequences. The question was: can we build a model that avoids recurrence and convolution entirely, using only attention to capture dependencies?
+
+## The Method
+
+The Transformer is an encoder-decoder model that uses **only attention mechanisms** and feed-forward layers, with no recurrence or convolution.
+
+### Core idea: Scaled Dot-Product Attention
+
+Given a set of **queries** (what to focus on) and **keys** and **values** (what to compare against and what to retrieve), attention computes a weighted sum of values, where weights come from the compatibility between query and key.
+
+- Each query is compared to every key via dot product → score.
+- Scores are scaled by \(1/\sqrt{d_k}\) (to keep gradients healthy) and passed through softmax → attention weights.
+- Output is weighted sum of the values.
+
+Example: in a sentence “The cat sat”, the word “cat” (as a query) might attend strongly to “sat” (key) to understand the verb it’s associated with.
+
+### Multi-Head Attention
+
+Instead of one attention function, the Transformer runs **multiple attention heads in parallel**:
+
+- Project queries, keys, values \(h=8\) times with different learned linear projections.
+- Compute attention on each projected version.
+- Concatenate results and project again.
+
+Intuition: different heads can learn different types of relationships – e.g., one head might focus on syntax, another on long-range dependencies.
+
+### Architecture in detail
+
+- **Encoder**: stack of 6 identical layers. Each layer has:
+  1. Multi-head self-attention (queries=keys=values=previous layer’s output).
+  2. A position-wise feed-forward network (two linear layers with ReLU).
+  Residual connections and layer normalization around each sub-layer.
+
+- **Decoder**: stack of 6 identical layers. Each has:
+  1. Masked multi-head self-attention (mask prevents attending to future positions, preserving auto-regressive property).
+  2. Multi-head cross-attention (queries from decoder, keys/values from encoder).
+  3. Feed-forward network.
+
+- **Positional Encoding**: Because attention has no built-in notion of order, sinusoidal waves are added to input embeddings. This lets the model use sequence position without learned parameters (sinusoids allow easy relative position computation).
+
+### Why this solves the problems
+
+- **Parallelism**: all positions in a sequence are processed simultaneously (self-attention is a set operation). No sequential hidden state update.
+- **Short path length**: any two positions are connected by a constant number of operations (one attention layer). No need to propagate through many steps.
+- **Computational cost**: self-attention is \(O(n^2 d)\), but for typical sequence lengths \(n\) (\(< 512\)), this is manageable and often faster than \(O(n d^2)\) RNNs.
+
+## Main Findings
+
+The Transformer was tested on two machine translation benchmarks:
+
+- **WMT 2014 English→German**: big model achieved **28.4 BLEU** (a standard translation quality score). Previous best (including ensembles) was 26.3. That’s over 2 BLEU points better.
+- **WMT 2014 English→French**: big model achieved **41.8 BLEU**, a new single-model state of the art. Previous best single model was around 39.2.
+
+Training time was dramatically lower:
+
+- Big model trained for **3.5 days on 8 GPUs** (P100). Competitors like the best RNN-based system took weeks on multiple GPUs.
+- The base model (27.3 BLEU on En→De) trained in **12 hours** on 8 GPUs.
+
+Ablation experiments showed:
+
+- Multi-head attention improves over single-head (about +0.9 BLEU).
+- Scaling head count too high or too low hurts.
+- Larger models help.
+- Dropout is crucial.
+- Sinusoidal positional encoding works as well as learned ones.
+
+The Transformer also generalized to **English constituency parsing** (a structured prediction task) without task-specific tuning, achieving 92.7 F1 on WSJ semi-supervised, beating most prior models.
+
+## Why It Matters
+
+- **Removed the sequential bottleneck** of RNNs, making training massively faster and scalable.
+- **Set a new standard for sequence modeling**: the Transformer became the foundation for BERT, GPT, T5, and virtually every major NLP model since 2018.
+- **Generalized beyond text**: attention mechanisms are now used in vision (ViT), speech, and multimodal models.
+- **Inspired architectural research**: simplified models, efficient attention (linear, sparse), and new training paradigms like pretraining-finetuning.
+
+“Attention Is All You Need” didn’t just improve translation numbers – it changed the field’s default architecture, enabling the scale and performance of modern deep learning.

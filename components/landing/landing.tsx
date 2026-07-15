@@ -49,9 +49,9 @@ export function Landing() {
           Understand any research paper in{" "}
           <span className="text-primary">under 10 minutes</span>.
         </h1>
-        <p className="mt-4 max-w-md text-pretty text-base text-muted-foreground">
-          Paste an arXiv link or PDF. Get a plain-English explanation, explore every concept, and
-          ask anything — without leaving to Google.
+        <p className="mt-4 max-w-md text-base text-pretty text-muted-foreground">
+          Paste an arXiv link or PDF. Get a plain-English explanation, explore
+          every concept, and ask anything — without leaving to Google.
         </p>
 
         <div className="mt-9 w-full max-w-xl">
@@ -95,7 +95,8 @@ export function Landing() {
 
           {isLoading ? (
             <p className="mt-3 text-sm text-muted-foreground">
-              Downloading, extracting, and reading the paper — this can take up to 30 seconds.
+              Downloading, extracting, and reading the paper — this can take up
+              to 30 seconds.
             </p>
           ) : (
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -142,7 +143,7 @@ export function Landing() {
 function BackdropGlow() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0">
-      <div className="absolute left-1/2 top-1/3 size-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[120px]" />
+      <div className="absolute top-1/3 left-1/2 size-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[120px]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_55%,var(--background))]" />
     </div>
   )

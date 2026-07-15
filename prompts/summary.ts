@@ -5,7 +5,9 @@ import type { ProcessedPaper } from "@/types"
 import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
 
 /** 30-second summary — six labelled fields, 150–250 words total. */
-export function buildSummaryMessages(paper: ProcessedPaper): ChatMessageInput[] {
+export function buildSummaryMessages(
+  paper: ProcessedPaper
+): ChatMessageInput[] {
   const user = [
     paperHeader(paper),
     "",

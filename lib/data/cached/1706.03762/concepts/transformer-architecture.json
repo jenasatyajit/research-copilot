@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Transformer architecture",
+    "definition": "The Transformer is a neural network architecture for sequence transduction that relies entirely on multi-head self-attention mechanisms, dispensing with recurrence and convolution, to capture global dependencies between input and output positions.",
+    "simpleExplanation": "Instead of processing a sentence word by word like an RNN, the Transformer looks at all words at once and figures out how they relate to each other using attention. It does this multiple times in parallel (multi-head attention) and adds positional information so it knows the order of words. This makes training much faster because it can be parallelized across GPUs.",
+    "analogy": "Imagine a group of people in a meeting. Instead of each person speaking one at a time (like an RNN), everyone writes their thoughts on a whiteboard simultaneously. Then each person reads everyone else's notes and highlights the most relevant parts (attention). They do this several times with different colored highlighters (multi-head attention) to capture different types of relationships. Finally, they combine all highlights to form a complete understanding.",
+    "whyUsedHere": "The paper proposes the Transformer to replace recurrent and convolutional layers in sequence transduction (e.g., machine translation). The key motivation is that RNNs are inherently sequential and cannot be parallelized within a training example, while the Transformer's attention mechanism allows all positions to be processed simultaneously, drastically reducing training time and improving performance on long-range dependencies.",
+    "prerequisites": [
+      "Attention mechanism (scaled dot-product attention)",
+      "Sequence-to-sequence models (encoder-decoder architecture)",
+      "Self-attention (intra-attention within a sequence)",
+      "Multi-head attention (parallel attention heads)"
+    ],
+    "related": [
+      "BERT (Bidirectional Encoder Representations from Transformers)",
+      "GPT (Generative Pre-trained Transformer)",
+      "Positional encoding",
+      "Layer normalization and residual connections"
+    ]
+  }
+}

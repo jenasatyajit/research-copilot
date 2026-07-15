@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "[SEP] token",
+    "definition": "The [SEP] token is a special separator token inserted between two sentences in a single input sequence to allow BERT to process sentence pairs as one sequence.",
+    "simpleExplanation": "When BERT needs to handle two sentences together (like a question and an answer), it combines them into one long sequence. The [SEP] token is placed between the two sentences to mark where one ends and the next begins. This lets the model know which tokens belong to which sentence without extra architectural changes.",
+    "analogy": "Think of a checkout counter where two customers' items are placed on the same conveyor belt. A divider (like the [SEP] token) is put between them so the cashier knows which items belong to which customer, even though they're in one continuous line.",
+    "whyUsedHere": "BERT uses [SEP] to pack two sentences (e.g., question-passage or hypothesis-premise) into a single input sequence for tasks like question answering and natural language inference. This allows the bidirectional Transformer to attend across both sentences simultaneously, which is more powerful than encoding them separately and then combining.",
+    "prerequisites": [
+      "WordPiece tokenization",
+      "Input embeddings (token + segment + position)",
+      "Transformer encoder architecture",
+      "Sequence-level tasks vs. token-level tasks"
+    ],
+    "related": [
+      "[CLS] token",
+      "Segment embeddings",
+      "Next Sentence Prediction (NSP)",
+      "Self-attention over concatenated sequences"
+    ]
+  }
+}

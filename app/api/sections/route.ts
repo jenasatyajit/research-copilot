@@ -1,4 +1,5 @@
 import { parseBody, readJson } from "@/lib/api"
+import { getCachedArxivId, loadCachedData } from "@/lib/cache"
 import { env } from "@/lib/env"
 import { AppError, errorResponse } from "@/lib/errors"
 import { completeJson } from "@/lib/openrouter"
@@ -14,14 +15,29 @@ export async function POST(req: Request) {
     const body = await readJson<{ paper?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
 
+    const cachedId = getCachedArxivId(paper.arxivId)
+    if (cachedId) {
+      const cachedSections = loadCachedData(cachedId, "sections.json")
+      if (cachedSections) {
+        return Response.json(cachedSections)
+      }
+    }
+
     const sections = explainableSections(paper.sections)
     if (sections.length === 0) {
-      throw new AppError("EMPTY_PAPER", "No explainable sections were detected in this paper.")
+      throw new AppError(
+        "EMPTY_PAPER",
+        "No explainable sections were detected in this paper."
+      )
     }
 
     const result = await completeJson(
-      { model: env.fastModel, messages: buildSectionsMessages(paper, sections), temperature: 0.3 },
-      sectionsResponseSchema,
+      {
+        model: env.fastModel,
+        messages: buildSectionsMessages(paper, sections),
+        temperature: 0.3,
+      },
+      sectionsResponseSchema
     )
 
     // Merge AI output back with the detected titles, preserving paper order.

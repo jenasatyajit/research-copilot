@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Scaled dot-product attention",
+    "definition": "Scaled dot-product attention computes the output as a weighted sum of values, where the weights are derived from the softmax of scaled dot products between queries and keys, with scaling factor 1/√dk to prevent large magnitudes.",
+    "simpleExplanation": "Imagine each word in a sentence asks a question (query) and every word offers a label (key) and content (value). The model measures how well each question matches each label by taking their dot product, then divides by the square root of the label dimension to keep numbers manageable. It then turns these scores into probabilities using softmax and uses them to blend the corresponding contents, producing a context-aware representation of each word.",
+    "analogy": "Think of a teacher answering student questions. Each student's question is a query, and each chapter in a textbook has a title (key) and content (value). The teacher reads each question, compares it to every chapter title (dot product), scales down the match scores to avoid being overwhelmed by a single huge match, then decides how much to draw from each chapter (softmax) and finally summarizes the relevant content into an answer (weighted sum of values).",
+    "whyUsedHere": "The Transformer uses scaled dot-product attention as its fundamental building block to capture global dependencies between any positions in the sequence without recurrence. The scaling factor 1/√dk is critical because for large key dimensions dk, dot products can become large, pushing softmax into regions with tiny gradients, which hurts learning. This attention is applied in three ways: encoder self-attention, decoder self-attention (with masking), and encoder-decoder attention.",
+    "prerequisites": [
+      "Attention mechanism",
+      "Dot product",
+      "Softmax function",
+      "Matrix multiplication"
+    ],
+    "related": [
+      "Multi-head attention",
+      "Self-attention",
+      "Positional encoding",
+      "Layer normalization"
+    ]
+  }
+}

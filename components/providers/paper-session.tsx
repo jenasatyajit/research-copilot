@@ -1,6 +1,13 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 
 import type { ClientError } from "@/lib/errors"
 import { postJson, streamText } from "@/lib/fetcher"
@@ -78,15 +85,28 @@ function newId(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-export function PaperSessionProvider({ children }: { children: React.ReactNode }) {
+export function PaperSessionProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const [paper, setPaper] = useState<ProcessedPaper | null>(null)
   const [processStatus, setProcessStatus] = useState<AsyncStatus>("idle")
   const [processError, setProcessError] = useState<ClientError | undefined>()
 
-  const [summary, setSummary] = useState<Async<PaperSummary>>({ status: "idle" })
-  const [explanation, setExplanation] = useState<StreamState>({ status: "idle", text: "" })
-  const [sections, setSections] = useState<Async<SectionExplanation[]>>({ status: "idle" })
-  const [concepts, setConcepts] = useState<Async<ConceptRef[]>>({ status: "idle" })
+  const [summary, setSummary] = useState<Async<PaperSummary>>({
+    status: "idle",
+  })
+  const [explanation, setExplanation] = useState<StreamState>({
+    status: "idle",
+    text: "",
+  })
+  const [sections, setSections] = useState<Async<SectionExplanation[]>>({
+    status: "idle",
+  })
+  const [concepts, setConcepts] = useState<Async<ConceptRef[]>>({
+    status: "idle",
+  })
   const [mindmap, setMindmap] = useState<{
     status: AsyncStatus
     mermaid?: string
@@ -105,7 +125,11 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
   const runSummary = useCallback(async (target: ProcessedPaper) => {
     setSummary({ status: "loading" })
     try {
-      const res = await postJson<{ summary: PaperSummary }>("/api/summary", { paper: target }, signal())
+      const res = await postJson<{ summary: PaperSummary }>(
+        "/api/summary",
+        { paper: target },
+        signal()
+      )
       setSummary({ status: "done", data: res.summary })
     } catch (err) {
       if (isAbort(err)) return
@@ -119,12 +143,20 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       await streamText(
         "/api/explanation",
         { paper: target },
-        { onChunk: (_, full) => setExplanation({ status: "streaming", text: full }), signal: signal() },
+        {
+          onChunk: (_, full) =>
+            setExplanation({ status: "streaming", text: full }),
+          signal: signal(),
+        }
       )
       setExplanation((s) => ({ status: "done", text: s.text }))
     } catch (err) {
       if (isAbort(err)) return
-      setExplanation((s) => ({ status: "error", text: s.text, error: asClientError(err) }))
+      setExplanation((s) => ({
+        status: "error",
+        text: s.text,
+        error: asClientError(err),
+      }))
     }
   }, [])
 
@@ -134,7 +166,7 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       const res = await postJson<{ sections: SectionExplanation[] }>(
         "/api/sections",
         { paper: target },
-        signal(),
+        signal()
       )
       setSections({ status: "done", data: res.sections })
     } catch (err) {
@@ -149,7 +181,7 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       const res = await postJson<{ concepts: ConceptRef[] }>(
         "/api/concepts",
         { paper: target },
-        signal(),
+        signal()
       )
       setConcepts({ status: "done", data: res.concepts })
     } catch (err) {
@@ -165,7 +197,7 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       void runSections(target)
       void runConcepts(target)
     },
-    [runSummary, runExplanation, runSections, runConcepts],
+    [runSummary, runExplanation, runSections, runConcepts]
   )
 
   const reset = useCallback(() => {
@@ -196,7 +228,7 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
         const res = await postJson<{ paper: ProcessedPaper }>(
           "/api/process",
           { url },
-          abortRef.current.signal,
+          abortRef.current.signal
         )
         paperRef.current = res.paper
         setPaper(res.paper)
@@ -208,7 +240,7 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
         setProcessError(asClientError(err))
       }
     },
-    [startGenerations],
+    [startGenerations]
   )
 
   const retrySummary = useCallback(() => {
@@ -232,7 +264,7 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       const res = await postJson<{ concept: ConceptDetail }>(
         "/api/concept",
         { paper: target, term },
-        signal(),
+        signal()
       )
       setActiveConcept({ term, status: "done", data: res.concept })
     } catch (err) {
@@ -248,7 +280,11 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
     if (!target) return
     setMindmap({ status: "loading" })
     try {
-      const res = await postJson<{ mermaid: string }>("/api/mindmap", { paper: target }, signal())
+      const res = await postJson<{ mermaid: string }>(
+        "/api/mindmap",
+        { paper: target },
+        signal()
+      )
       setMindmap({ status: "done", mermaid: res.mermaid })
     } catch (err) {
       if (isAbort(err)) return
@@ -263,9 +299,17 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       if (!target || !trimmed || chatStatus === "streaming") return
 
       const history = chat
-      const userMessage: ChatMessage = { id: newId(), role: "user", content: trimmed }
+      const userMessage: ChatMessage = {
+        id: newId(),
+        role: "user",
+        content: trimmed,
+      }
       const assistantId = newId()
-      const assistantMessage: ChatMessage = { id: assistantId, role: "assistant", content: "" }
+      const assistantMessage: ChatMessage = {
+        id: assistantId,
+        role: "assistant",
+        content: "",
+      }
 
       setChat([...history, userMessage, assistantMessage])
       setChatStatus("streaming")
@@ -278,10 +322,12 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
           {
             onChunk: (_, full) =>
               setChat((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, content: full } : m)),
+                prev.map((m) =>
+                  m.id === assistantId ? { ...m, content: full } : m
+                )
               ),
             signal: signal(),
-          },
+          }
         )
         setChatStatus("done")
       } catch (err) {
@@ -293,12 +339,12 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
           prev.map((m) =>
             m.id === assistantId && !m.content
               ? { ...m, content: `_${e.message}_` }
-              : m,
-          ),
+              : m
+          )
         )
       }
     },
-    [chat, chatStatus],
+    [chat, chatStatus]
   )
 
   const value = useMemo<SessionValue>(
@@ -349,16 +395,22 @@ export function PaperSessionProvider({ children }: { children: React.ReactNode }
       closeConcept,
       generateMindMap,
       sendMessage,
-    ],
+    ]
   )
 
-  return <PaperSessionContext.Provider value={value}>{children}</PaperSessionContext.Provider>
+  return (
+    <PaperSessionContext.Provider value={value}>
+      {children}
+    </PaperSessionContext.Provider>
+  )
 }
 
 export function usePaperSession(): SessionValue {
   const ctx = useContext(PaperSessionContext)
   if (!ctx) {
-    throw new Error("usePaperSession must be used within a PaperSessionProvider")
+    throw new Error(
+      "usePaperSession must be used within a PaperSessionProvider"
+    )
   }
   return ctx
 }

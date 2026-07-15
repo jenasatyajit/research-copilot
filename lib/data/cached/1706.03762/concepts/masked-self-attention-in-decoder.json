@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Masked self-attention in decoder",
+    "definition": "Masked self-attention in the decoder is a mechanism that prevents each position from attending to future positions by setting the attention scores for illegal connections to negative infinity before the softmax, ensuring the autoregressive property that predictions depend only on previous outputs.",
+    "simpleExplanation": "In the decoder, when generating a sentence word by word, each word should only look at words that came before it, not future words. To achieve this, we modify the self-attention so that when computing attention for a given word, the scores for all later words are set to a very large negative number, making their attention weights zero and allowing the word to only attend to itself and earlier words.",
+    "analogy": "Think of writing an essay one sentence at a time without being able to read ahead. As you write each sentence, you can only refer to sentences you've already written. Masked self-attention is like having a physical barrier that blocks your view of the blank pages ahead, so you can only see the completed part.",
+    "whyUsedHere": "The Transformer decoder uses masked self-attention to preserve the autoregressive nature of sequence generation. Without masking, each position could attend to future positions, leaking information and allowing the model to 'cheat' by peeking at the target tokens it is supposed to predict. This is essential for tasks like machine translation where output is generated left-to-right.",
+    "prerequisites": [
+      "Self-attention mechanism",
+      "Autoregressive models",
+      "Softmax function",
+      "Sequence-to-sequence decoding process"
+    ],
+    "related": [
+      "Scaled dot-product attention",
+      "Multi-head attention",
+      "Encoder-decoder attention",
+      "Teacher forcing"
+    ]
+  }
+}

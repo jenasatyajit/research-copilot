@@ -13,9 +13,12 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 
+export type ViewMode = "analysis" | "pdf"
+
 export function Workspace() {
   const [showLeft, setShowLeft] = useState(true)
   const [showRight, setShowRight] = useState(true)
+  const [viewMode, setViewMode] = useState<ViewMode>("analysis")
 
   return (
     <div className="flex h-svh flex-col overflow-hidden">
@@ -24,6 +27,8 @@ export function Workspace() {
         showRight={showRight}
         onToggleLeft={() => setShowLeft((v) => !v)}
         onToggleRight={() => setShowRight((v) => !v)}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       <div className="min-h-0 flex-1">
@@ -43,8 +48,13 @@ export function Workspace() {
             </>
           ) : null}
 
-          <ResizablePanel id="center" defaultSize="52%" minSize="30%" className="overflow-hidden">
-            <CenterPanel />
+          <ResizablePanel
+            id="center"
+            defaultSize="52%"
+            minSize="30%"
+            className="overflow-hidden"
+          >
+            <CenterPanel viewMode={viewMode} />
           </ResizablePanel>
 
           {showRight ? (

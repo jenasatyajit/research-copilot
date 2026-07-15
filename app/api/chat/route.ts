@@ -14,19 +14,33 @@ function coerceHistory(value: unknown): ChatMessage[] {
   return value
     .filter(
       (m): m is { role: string; content: string } =>
-        !!m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"),
+        !!m &&
+        typeof m.content === "string" &&
+        (m.role === "user" || m.role === "assistant")
     )
-    .map((m, i) => ({ id: `h-${i}`, role: m.role as ChatMessage["role"], content: m.content }))
+    .map((m, i) => ({
+      id: `h-${i}`,
+      role: m.role as ChatMessage["role"],
+      content: m.content,
+    }))
 }
 
 export async function POST(req: Request) {
   try {
     if (!hasApiKey()) {
-      return new AppError("MISSING_API_KEY", "OpenRouter API key is not configured.").toResponse()
+      return new AppError(
+        "MISSING_API_KEY",
+        "OpenRouter API key is not configured."
+      ).toResponse()
     }
-    const body = await readJson<{ paper?: unknown; history?: unknown; question?: unknown }>(req)
+    const body = await readJson<{
+      paper?: unknown
+      history?: unknown
+      question?: unknown
+    }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
-    const question = typeof body.question === "string" ? body.question.trim() : ""
+    const question =
+      typeof body.question === "string" ? body.question.trim() : ""
     if (!question) {
       throw new AppError("BAD_REQUEST", "Ask a question to continue.")
     }

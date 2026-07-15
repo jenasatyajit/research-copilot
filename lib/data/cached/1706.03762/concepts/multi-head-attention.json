@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Multi-head attention",
+    "definition": "Multi-head attention is a mechanism that linearly projects the queries, keys, and values into multiple lower-dimensional subspaces, computes scaled dot-product attention in parallel for each subspace, then concatenates the results and projects them back to the original dimension, allowing the model to jointly attend to information from different representation subspaces at different positions.",
+    "simpleExplanation": "Instead of doing a single attention computation, multi-head attention runs several attention computations (called 'heads') in parallel, each with its own learned linear projections. Each head can focus on different aspects of the input (like syntax or semantics), and the results are combined to give a richer representation. This lets the model capture multiple types of relationships simultaneously.",
+    "analogy": "Imagine a group of detectives examining a crime scene. Each detective wears a different pair of special glasses: one highlights fingerprints, another highlights DNA, another highlights footprints. They each analyze the scene through their own lens, then meet to combine their findings. By merging these different perspectives, they get a much fuller understanding than any single detective could.",
+    "whyUsedHere": "The Transformer uses multi-head attention (with h=8 heads and dk=dv=64) to counteract the reduced effective resolution caused by averaging attention-weighted positions in single-head self-attention. This allows each head to specialize in different relationships (e.g., long-range dependencies, syntactic patterns), making the model more expressive without increasing overall computational cost (since each head works in a lower dimension dmodel/h).",
+    "prerequisites": [
+      "Scaled Dot-Product Attention",
+      "Linear projections",
+      "Softmax function",
+      "Model dimension d_model"
+    ],
+    "related": [
+      "Self-attention",
+      "Positional encoding",
+      "Layer normalization",
+      "Residual connections"
+    ]
+  }
+}

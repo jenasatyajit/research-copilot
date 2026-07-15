@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Self-attention",
+    "definition": "Self-attention is a mechanism where each token in a sequence computes weighted representations of all other tokens to capture contextual relationships, with weights determined by pairwise compatibility scores.",
+    "simpleExplanation": "Imagine reading a sentence and, for each word, looking at every other word to decide which ones are most relevant for understanding that word's meaning. Self-attention lets a model do this automatically, computing a weighted sum of all words' representations for each word, so the model can focus on important context like subject-verb agreement or coreference.",
+    "analogy": "In a group conversation, when one person speaks, everyone else pays attention differently: you focus more on the speaker, less on background noise. Self-attention is like each person (token) deciding how much to listen to each other person (other tokens), then combining what they hear into a single understanding. The 'attention weights' are like the volume knobs for each speaker.",
+    "whyUsedHere": "BERT uses self-attention in its Transformer encoder to process all tokens simultaneously and bidirectionally. Unlike earlier models that only looked left-to-right (GPT) or concatenated separate left and right LMs (ELMo), BERT's self-attention allows every token to directly attend to every other token in all layers, enabling deep bidirectional context—critical for tasks like question answering where both preceding and following words matter.",
+    "prerequisites": [
+      "Transformer architecture",
+      "Word embeddings",
+      "Softmax function",
+      "Weighted sum"
+    ],
+    "related": [
+      "Multi-head attention",
+      "Positional encoding",
+      "Masked language model",
+      "Cross-attention"
+    ]
+  }
+}

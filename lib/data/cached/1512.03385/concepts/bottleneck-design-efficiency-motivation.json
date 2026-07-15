@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Bottleneck design (efficiency motivation)",
+    "definition": "A bottleneck design is a residual building block that uses a 1×1 convolution to reduce the input channel dimension, then a 3×3 convolution, and finally another 1×1 convolution to restore the original dimension, thereby reducing computational cost while maintaining depth.",
+    "simpleExplanation": "Instead of stacking two 3×3 convolutions directly (which would be expensive), the bottleneck block first shrinks the number of channels with a cheap 1×1 convolution, processes the smaller representation with a 3×3 convolution, then expands the channels back with another 1×1 convolution. This way, the costly 3×3 convolution operates on much fewer channels, saving computation and parameters.",
+    "analogy": "Think of packing a suitcase: instead of carrying a large, bulky suitcase directly (two 3×3 convs), you first compress your clothes with a vacuum bag (1×1 conv reducing channels), carry the compact bag (3×3 conv on small dimensions), then fluff them back at your destination (1×1 conv restoring channels). The travel is much easier.",
+    "whyUsedHere": "The authors use the bottleneck design to build deeper ResNets (50, 101, 152 layers) for ImageNet without exploding computational cost. It keeps FLOPs comparable to or lower than VGG nets despite having far more layers. They also note that identity shortcuts are especially important here—projection shortcuts would double complexity and memory, so parameter-free identity shortcuts are essential for efficiency.",
+    "prerequisites": [
+      "Convolutional layer operation (filter, stride, padding)",
+      "Channel dimensions in convolutional networks (input/output feature maps)",
+      "Residual learning (identity shortcut connection)",
+      "FLOPs (floating point operations) as a measure of computational cost"
+    ],
+    "related": [
+      "1×1 convolution (bottleneck layer)",
+      "Identity mapping vs. projection shortcut",
+      "Network depth vs. computational budget tradeoff",
+      "Inception module (parallel 1×1, 3×3, 5×5 paths)"
+    ]
+  }
+}

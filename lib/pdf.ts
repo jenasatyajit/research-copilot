@@ -11,16 +11,24 @@ export async function downloadPdf(url: string): Promise<Uint8Array> {
   let res: Response
   try {
     res = await fetch(url, {
-      headers: { "User-Agent": "ResearchCopilot/1.0", Accept: "application/pdf,*/*" },
+      headers: {
+        "User-Agent": "ResearchCopilot/1.0",
+        Accept: "application/pdf,*/*",
+      },
       redirect: "follow",
       signal: AbortSignal.timeout(25_000),
     })
   } catch (err) {
-    throw new AppError("DOWNLOAD_FAILED", "Couldn't download that file.", { cause: err })
+    throw new AppError("DOWNLOAD_FAILED", "Couldn't download that file.", {
+      cause: err,
+    })
   }
 
   if (!res.ok) {
-    throw new AppError("DOWNLOAD_FAILED", `The server returned ${res.status} for that link.`)
+    throw new AppError(
+      "DOWNLOAD_FAILED",
+      `The server returned ${res.status} for that link.`
+    )
   }
 
   const contentType = res.headers.get("content-type")?.toLowerCase() ?? ""
@@ -29,12 +37,19 @@ export async function downloadPdf(url: string): Promise<Uint8Array> {
     contentType.includes("octet-stream") ||
     url.toLowerCase().endsWith(".pdf")
   if (contentType.includes("text/html")) {
-    throw new AppError("UNSUPPORTED_SOURCE", "That link is a web page, not a PDF.", {
-      hint: "Use the direct PDF link or an arXiv abstract URL.",
-    })
+    throw new AppError(
+      "UNSUPPORTED_SOURCE",
+      "That link is a web page, not a PDF.",
+      {
+        hint: "Use the direct PDF link or an arXiv abstract URL.",
+      }
+    )
   }
   if (!looksLikePdf) {
-    throw new AppError("UNSUPPORTED_SOURCE", "That link doesn't appear to be a PDF.")
+    throw new AppError(
+      "UNSUPPORTED_SOURCE",
+      "That link doesn't appear to be a PDF."
+    )
   }
 
   const buffer = await res.arrayBuffer()
@@ -42,7 +57,10 @@ export async function downloadPdf(url: string): Promise<Uint8Array> {
     throw new AppError("EMPTY_PAPER", "The downloaded file was empty.")
   }
   if (buffer.byteLength > MAX_PDF_BYTES) {
-    throw new AppError("UNSUPPORTED_SOURCE", "That PDF is larger than the 40 MB limit.")
+    throw new AppError(
+      "UNSUPPORTED_SOURCE",
+      "That PDF is larger than the 40 MB limit."
+    )
   }
   return new Uint8Array(buffer)
 }
@@ -66,14 +84,20 @@ export async function extractPdfText(bytes: Uint8Array): Promise<string> {
     const result = await extractText(pdf, { mergePages: false })
     text = Array.isArray(result.text) ? result.text.join("\n\n") : result.text
   } catch (err) {
-    throw new AppError("EXTRACTION_FAILED", "Couldn't parse this PDF.", { cause: err })
+    throw new AppError("EXTRACTION_FAILED", "Couldn't parse this PDF.", {
+      cause: err,
+    })
   }
 
   const cleaned = cleanText(text)
   if (cleaned.length < 500) {
-    throw new AppError("EMPTY_PAPER", "This PDF has too little selectable text to analyze.", {
-      hint: "It may be a scanned or image-only document. Try a different source.",
-    })
+    throw new AppError(
+      "EMPTY_PAPER",
+      "This PDF has too little selectable text to analyze.",
+      {
+        hint: "It may be a scanned or image-only document. Try a different source.",
+      }
+    )
   }
   return cleaned
 }

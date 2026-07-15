@@ -47,7 +47,10 @@ function countWords(text: string): number {
 export async function processPaper(rawInput: string): Promise<ProcessedPaper> {
   const input = rawInput.trim()
   if (!input) {
-    throw new AppError("INVALID_URL", "Please paste an arXiv link or a PDF URL.")
+    throw new AppError(
+      "INVALID_URL",
+      "Please paste an arXiv link or a PDF URL."
+    )
   }
 
   const arxivId = parseArxivId(input)

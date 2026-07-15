@@ -15,14 +15,17 @@ async function toClientError(res: Response): Promise<ClientError> {
   } catch {
     // fall through
   }
-  return { code: "UNKNOWN" as AppErrorCode, message: `Request failed (${res.status}).` }
+  return {
+    code: "UNKNOWN" as AppErrorCode,
+    message: `Request failed (${res.status}).`,
+  }
 }
 
 /** POST JSON and parse a JSON response, throwing a ClientError on failure. */
 export async function postJson<T>(
   path: string,
   body: unknown,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<T> {
   let res: Response
   try {
@@ -53,7 +56,7 @@ export interface StreamHandlers {
 export async function streamText(
   path: string,
   body: unknown,
-  { onChunk, signal }: StreamHandlers,
+  { onChunk, signal }: StreamHandlers
 ): Promise<string> {
   let res: Response
   try {
@@ -85,8 +88,13 @@ export async function streamText(
     if (markerIndex !== -1) {
       const clean = full.slice(0, markerIndex).trimEnd()
       onChunk("", clean)
-      const message = full.slice(markerIndex + STREAM_ERROR_MARKER.length).trim()
-      throw { code: "AI_ERROR" as AppErrorCode, message: message || "The AI stream failed." }
+      const message = full
+        .slice(markerIndex + STREAM_ERROR_MARKER.length)
+        .trim()
+      throw {
+        code: "AI_ERROR" as AppErrorCode,
+        message: message || "The AI stream failed.",
+      }
     }
     onChunk(chunk, full)
   }

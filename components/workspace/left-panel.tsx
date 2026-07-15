@@ -8,8 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function LeftPanel() {
   return (
-    <Tabs defaultValue="outline" className="flex h-full flex-col gap-0 bg-sidebar">
-      <div className="border-b p-2">
+    <Tabs
+      defaultValue="outline"
+      className="flex h-full flex-col gap-0 bg-sidebar"
+    >
+      <div className="flex h-14 shrink-0 items-center border-b px-2">
         <TabsList className="w-full">
           <TabsTrigger value="outline" className="flex-1 text-xs">
             Outline

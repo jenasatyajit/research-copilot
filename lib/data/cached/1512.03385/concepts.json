@@ -1,0 +1,49 @@
+{
+  "concepts": [
+    {
+      "id": "concept-0",
+      "term": "Degradation problem",
+      "short": "Deeper plain networks have higher training error than shallower ones, even though the deeper model's solution space contains the shallower one's; this is the core challenge the paper addresses."
+    },
+    {
+      "id": "concept-1",
+      "term": "Residual learning",
+      "short": "Instead of learning H(x) directly, a few stacked layers learn F(x) = H(x) - x, and the original mapping becomes F(x) + x via a shortcut connection."
+    },
+    {
+      "id": "concept-2",
+      "term": "Shortcut connection (identity mapping)",
+      "short": "A connection that skips one or more layers by adding the original input x to the output of the stacked layers, F(x); uses no extra parameters."
+    },
+    {
+      "id": "concept-3",
+      "term": "Bottleneck building block",
+      "short": "A three-layer block (1x1, 3x3, 1x1 convolution) used for deeper ResNets (50+ layers), where the 1x1 layers reduce and restore dimensions to make the 3x3 layer a low-dimensional bottleneck."
+    },
+    {
+      "id": "concept-4",
+      "term": "Plain network",
+      "short": "A standard convolutional neural network — the baseline in this paper — that stacks Conv/BN/ReLU layers without shortcut connections, used as a comparison to show the degradation problem."
+    },
+    {
+      "id": "concept-5",
+      "term": "Projection shortcut",
+      "short": "A shortcut connection that uses a learned linear projection (usually a 1x1 convolution) to match dimensions when input and output sizes differ; an alternative to zero-padding."
+    },
+    {
+      "id": "concept-6",
+      "term": "Batch Normalization (BN)",
+      "short": "A technique that normalizes each layer's activations across a mini-batch, used in all models to enable convergence and avoid vanishing/exploding gradients."
+    },
+    {
+      "id": "concept-7",
+      "term": "Identity mapping (as optimal solution)",
+      "short": "In the degradation problem, if identity were optimal, a stack of nonlinear layers should learn to compute F(x)=0; residual learning makes this easy by driving weights toward zero."
+    },
+    {
+      "id": "concept-8",
+      "term": "Bottleneck design (efficiency motivation)",
+      "short": "Using bottleneck blocks reduces the time complexity per layer compared to two 3x3 layers, allowing very deep networks (e.g., 152 layers) with lower total FLOPs than VGG-19."
+    }
+  ]
+}

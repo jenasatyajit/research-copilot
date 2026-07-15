@@ -1,0 +1,10 @@
+{
+  "summary": {
+    "problem": "Previous language models (e.g., OpenAI GPT) were unidirectional, only using left-to-right context, which limited their ability to capture deep bidirectional context crucial for tasks like question answering.",
+    "solution": "BERT pre-trains a deep bidirectional Transformer using two unsupervised tasks: Masked Language Model (randomly mask 15% of tokens and predict them) and Next Sentence Prediction (predict if two sentences are consecutive). The pre-trained model is then fine-tuned on specific tasks with minimal additional parameters.",
+    "keyInnovation": "The masked language model objective, which enables deep bidirectional conditioning by preventing tokens from 'seeing themselves' through masking, unlike previous shallow concatenation of left-to-right and right-to-left models.",
+    "results": "BERT achieved state-of-the-art on 11 NLP tasks: GLUE score 80.5% (7.7% absolute improvement), SQuAD v1.1 F1 93.2, SQuAD v2.0 F1 83.1, and a 4.6% improvement on MultiNLI to 86.7%.",
+    "whyItMatters": "BERT demonstrated that pre-trained bidirectional representations can be fine-tuned for multiple tasks without task-specific architectures, making it a universal NLP backbone that works well even with small labeled data.",
+    "shouldYouRead": "Anyone working in NLP or interested in transfer learning should read this paper; it is the foundational work for modern language models like GPT-2, RoBERTa, and others."
+  }
+}

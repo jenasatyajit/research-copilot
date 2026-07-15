@@ -1,0 +1,21 @@
+{
+  "concept": {
+    "term": "Shortcut connection (identity mapping)",
+    "definition": "A shortcut connection with identity mapping is a direct path that carries the input of a neural network block unchanged (identity) and adds it to the block's output, bypassing the nonlinear layers in between.",
+    "simpleExplanation": "Imagine a block of layers in a neural network. Normally, the block tries to directly learn the desired output from scratch. With a shortcut, we let the block learn only the change (the \"residual\") relative to the input, and then we add the original input back. This makes training much easier for very deep networks, because even if the block learns nothing useful, the signal can still flow through unchanged.",
+    "analogy": "Think of adjusting a photograph in editing software. You could start from a blank canvas and try to draw the entire adjusted photo from scratch (hard). Or you could start from the original photo and only learn the small adjustments (brightness, contrast) needed to get the final result (easy). The identity shortcut is like always keeping the original photo as a base, so you only need to learn the correction.",
+    "whyUsedHere": "The paper uses identity shortcuts to implement residual learning: instead of forcing stacked layers to learn the full mapping H(x), they learn the residual F(x) = H(x) - x. The identity shortcut adds x back, forming H(x) = F(x) + x. This reformulation solves the degradation problem—very deep plain networks (with no shortcuts) got *higher* training error as depth increased, but with shortcuts the error decreased and deeper networks could be trained successfully up to 152 layers.",
+    "prerequisites": [
+      "feedforward neural network",
+      "vanishing/exploding gradient problem",
+      "convolutional layer (for ImageNet context)",
+      "batch normalization (used in all experiments)"
+    ],
+    "related": [
+      "highway networks (gated shortcuts, contrast to identity)",
+      "residual block (the building block containing the shortcut)",
+      "bottleneck design (1x1-3x3-1x1 resblock used in deeper variants)",
+      "degradation problem (the training error increase with depth that motivates this work)"
+    ]
+  }
+}

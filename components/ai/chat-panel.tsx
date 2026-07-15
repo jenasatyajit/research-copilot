@@ -30,7 +30,10 @@ export function ChatPanel() {
   const isStreaming = chatStatus === "streaming"
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    })
   }, [chat])
 
   function submit() {
@@ -42,17 +45,23 @@ export function ChatPanel() {
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <header className="flex items-center gap-2 border-b px-4 py-3">
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
         <SparklesIcon className="size-4 text-primary" />
         <span className="text-sm font-medium">Ask the paper</span>
-        {isStreaming ? <Spinner className="ml-auto size-3.5 text-muted-foreground" /> : null}
+        {isStreaming ? (
+          <Spinner className="ml-auto size-3.5 text-muted-foreground" />
+        ) : null}
       </header>
 
-      <div ref={scrollRef} className="scroll-thin min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      <div
+        ref={scrollRef}
+        className="scroll-thin min-h-0 flex-1 overflow-y-auto px-4 py-4"
+      >
         {chat.length === 0 ? (
           <div className="flex flex-col gap-4 pt-2">
             <p className="text-sm text-muted-foreground">
-              Ask anything about this paper. Answers are grounded in its content.
+              Ask anything about this paper. Answers are grounded in its
+              content.
             </p>
             <div className="flex flex-col gap-1.5">
               {SUGGESTIONS.map((q) => (
@@ -70,7 +79,11 @@ export function ChatPanel() {
         ) : (
           <div className="flex flex-col gap-4">
             {chat.map((message) => (
-              <MessageBubble key={message.id} message={message} streaming={isStreaming} />
+              <MessageBubble
+                key={message.id}
+                message={message}
+                streaming={isStreaming}
+              />
             ))}
           </div>
         )}
@@ -109,7 +122,13 @@ export function ChatPanel() {
   )
 }
 
-function MessageBubble({ message, streaming }: { message: ChatMessage; streaming: boolean }) {
+function MessageBubble({
+  message,
+  streaming,
+}: {
+  message: ChatMessage
+  streaming: boolean
+}) {
   const isUser = message.role === "user"
   const isEmptyAssistant = !isUser && message.content.length === 0
 

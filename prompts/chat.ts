@@ -15,11 +15,14 @@ const CHAT_RULES = [
 export function buildChatMessages(
   paper: ProcessedPaper,
   history: ChatMessage[],
-  question: string,
+  question: string
 ): ChatMessageInput[] {
-  const context = [paperHeader(paper), "", "PAPER TEXT:", clip(paper.fullText, MAX_CONTEXT_CHARS)].join(
-    "\n",
-  )
+  const context = [
+    paperHeader(paper),
+    "",
+    "PAPER TEXT:",
+    clip(paper.fullText, MAX_CONTEXT_CHARS),
+  ].join("\n")
 
   const priorTurns: ChatMessageInput[] = history
     .filter((m) => m.content.trim().length > 0)

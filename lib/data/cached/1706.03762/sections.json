@@ -1,0 +1,88 @@
+{
+  "sections": [
+    {
+      "sectionId": "0-abstract",
+      "title": "Abstract",
+      "explanation": "The abstract states that previous best models used RNNs or CNNs with attention, but the Transformer removes recurrence and convolution entirely, relying only on attention. It achieves state-of-the-art translation BLEU scores (28.4 En-De, 41.8 En-Fr) with much less training time. It also works well for English constituency parsing.",
+      "keyTakeaway": "The Transformer is a new architecture based solely on attention that outperforms previous models on translation while being faster to train.",
+      "whyItMatters": "This section introduces the core contribution and main results of the paper."
+    },
+    {
+      "sectionId": "1-1-introduction",
+      "title": "1 Introduction",
+      "explanation": "RNNs process sequences step-by-step, preventing parallelization and making long sequences slow. Attention mechanisms help model dependencies but are typically added on top of RNNs. The Transformer removes RNNs entirely, using only attention to capture global dependencies, enabling much more parallelization.",
+      "keyTakeaway": "The Transformer solves the sequential computation bottleneck of RNNs by using only attention.",
+      "whyItMatters": "This section motivates the need for a new architecture that is more parallelizable."
+    },
+    {
+      "sectionId": "2-2-background",
+      "title": "2 Background",
+      "explanation": "Convolutional models like ByteNet and ConvS2S compute hidden states in parallel but the number of operations to relate distant positions grows linearly or logarithmically. Self-attention connects any two positions in constant time, though it averages over positions (reduced resolution), which Multi-Head Attention fixes. Self-attention has been used before but not as the sole mechanism.",
+      "keyTakeaway": "Self-attention provides constant-length paths between any positions, unlike convolutions.",
+      "whyItMatters": "This section positions the Transformer against existing parallel architectures and highlights its advantage in learning long-range dependencies."
+    },
+    {
+      "sectionId": "3-3-model-architecture",
+      "title": "3 Model Architecture",
+      "explanation": "The Transformer follows the standard encoder-decoder setup: encoder maps input sequence to continuous representations, decoder generates output auto-regressively (one token at a time, using previous outputs). Both encoder and decoder use stacked self-attention and feed-forward layers.",
+      "keyTakeaway": "The Transformer is an encoder-decoder model using stacked self-attention and feed-forward networks.",
+      "whyItMatters": "This section establishes the overall architecture before diving into details."
+    },
+    {
+      "sectionId": "4-3-1-encoder-and-decoder-stacks",
+      "title": "3.1 Encoder and Decoder Stacks",
+      "explanation": "The encoder has 6 identical layers, each with multi-head self-attention followed by a feed-forward network, with residual connections and layer normalization. The decoder also has 6 layers, but adds a third sub-layer that attends to the encoder output. Decoder self-attention is masked so positions can only attend to earlier positions, preserving auto-regressive property. All sub-layers output dimension 512.",
+      "keyTakeaway": "The encoder and decoder are stacks of 6 layers with self-attention, feed-forward, residuals, and layer norm; decoder adds cross-attention and masking.",
+      "whyItMatters": "This section gives the concrete architecture that enables parallel processing and long-range dependencies."
+    },
+    {
+      "sectionId": "5-3-2-attention",
+      "title": "3.2 Attention",
+      "explanation": "Attention takes a query and a set of key-value pairs, computes a weighted sum of values where weights are determined by compatibility between query and each key. The output is a vector. This is the core mechanism used throughout.",
+      "keyTakeaway": "Attention computes a weighted sum of values based on query-key compatibility.",
+      "whyItMatters": "This section introduces the fundamental building block of the Transformer."
+    },
+    {
+      "sectionId": "6-3-2-1-scaled-dot-product-attention",
+      "title": "3.2.1 Scaled Dot-Product Attention",
+      "explanation": "Scaled Dot-Product Attention computes attention scores as dot products of queries and keys, scaled by 1/sqrt(dk) to prevent large values that push softmax into low-gradient regions. Then softmax gives weights, multiplied by values. In practice, queries, keys, values are packed into matrices for efficient computation. This is faster than additive attention.",
+      "keyTakeaway": "The Transformer uses scaled dot-product attention to efficiently compute attention weights.",
+      "whyItMatters": "This section explains the exact attention mechanism and why scaling is needed for stability."
+    },
+    {
+      "sectionId": "7-3-2-2-multi-head-attention",
+      "title": "3.2.2 Multi-Head Attention",
+      "explanation": "Multi-Head Attention runs multiple attention functions in parallel on different linear projections of the queries, keys, and values. This allows the model to attend to information from different representation subspaces at different positions. With 8 heads, each head works on 64-dimensional projections, keeping total computation similar to single-head attention on full 512 dimensions.",
+      "keyTakeaway": "Multi-head attention lets the model jointly attend to multiple representation subspaces.",
+      "whyItMatters": "This section explains how the Transformer overcomes the resolution loss of single attention by using multiple heads."
+    },
+    {
+      "sectionId": "8-3-2-3-applications-of-attention-in-our-model",
+      "title": "3.2.3 Applications of Attention in our Model",
+      "explanation": "The Transformer uses multi-head attention in three ways: (1) encoder-decoder attention allows decoder to attend to all encoder positions; (2) encoder self-attention allows each encoder position to attend to all positions in previous layer; (3) decoder self-attention allows each decoder position to attend to all previous positions (masked to prevent future information).",
+      "keyTakeaway": "Attention is used in three distinct roles to connect encoder and decoder and within each stack.",
+      "whyItMatters": "This section shows how attention replaces all recurrent connections in the model."
+    },
+    {
+      "sectionId": "9-3-3-position-wise-feed-forward-networks",
+      "title": "3.3 Position-wise Feed-Forward Networks",
+      "explanation": "After attention, each position goes through a two-layer feed-forward network with ReLU activation, same parameters for all positions in a layer but different per layer. It's like two 1x1 convolutions. Input/output dimension 512, inner dimension 2048.",
+      "keyTakeaway": "Feed-forward networks provide additional non-linear transformations per position.",
+      "whyItMatters": "This section describes the other key component besides attention in each layer."
+    },
+    {
+      "sectionId": "10-3-4-embeddings-and-softmax",
+      "title": "3.4 Embeddings and Softmax",
+      "explanation": "Input and output tokens are converted to 512-dimensional vectors via learned embeddings. The decoder output goes through a linear layer and softmax to predict next token probabilities. The same weight matrix is shared between input embeddings, output embeddings, and the pre-softmax linear transformation. Embedding weights are multiplied by sqrt(dmodel).",
+      "keyTakeaway": "The model uses shared embeddings and a softmax classifier for token prediction.",
+      "whyItMatters": "This section explains how tokens are represented and how output probabilities are computed."
+    },
+    {
+      "sectionId": "11-3-5-positional-encoding",
+      "title": "3.5 Positional Encoding",
+      "explanation": "Because the Transformer has no inherent notion of sequence order, positional encodings are added to the input embeddings at the bottom of encoder and decoder. They use sine and cosine functions of different frequencies, allowing the model to learn relative positions easily. They also tried learned embeddings but got similar results; sinusoidal version may extrapolate to longer sequences.",
+      "keyTakeaway": "Positional encodings inject sequence order information using sinusoids.",
+      "whyItMatters": "This section explains how the Transformer handles sequence order without recurrence or convolution."
+    }
+  ]
+}

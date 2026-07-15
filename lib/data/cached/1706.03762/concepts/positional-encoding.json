@@ -1,0 +1,19 @@
+{
+  "concept": {
+    "term": "Positional encoding",
+    "definition": "Positional encoding is a method of injecting information about the absolute or relative position of tokens in a sequence by adding a fixed sinusoidal vector to the input embedding at the bottom of the encoder and decoder stacks.",
+    "simpleExplanation": "Since the Transformer has no built-in sense of word order (no recurrence or convolution), it needs an extra signal to know which word comes first, second, etc. The authors add a unique pattern of sine and cosine waves to each word’s embedding; the pattern depends on the word’s position. This way the model can distinguish \"dog bites man\" from \"man bites dog\" purely by the added position information.",
+    "analogy": "Imagine labeling each seat in a row of chairs with a differently colored stripe on the side of the chair. The chairs (embeddings) are identical, but the stripe (positional encoding) tells you which seat is first, second, and so on. The model sees both the chair and the stripe together.",
+    "whyUsedHere": "The Transformer eschews recurrence and convolution entirely (Section 3), so it cannot model sequential order natively. Positional encodings are added to the input embeddings at the bottoms of both encoder and decoder stacks (Section 3.5). The authors chose sinusoidal functions of different frequencies so the model could easily learn to attend by relative positions, and they found it performed nearly identically to learned positional embeddings.",
+    "prerequisites": [
+      "Word embeddings (mapping discrete tokens to continuous vectors)",
+      "Self-attention mechanism (how the Transformer computes weighted sums of values from queries and keys)",
+      "The concept of an auto-regressive decoder (generating outputs one token at a time)"
+    ],
+    "related": [
+      "Learned positional embeddings (alternative to sinusoids, tested in the paper and found nearly identical; Section 3.5)",
+      "Relative position representations (a follow-up approach encoding offset-based biases within the attention computation)",
+      "Rotary Position Embedding (RoPE, a later method encoding position via rotation matrices)"
+    ]
+  }
+}

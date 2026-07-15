@@ -1,4 +1,7 @@
+import path from "path"
+
 import { parseBody, readJson } from "@/lib/api"
+import { getCachedArxivId, loadCachedData } from "@/lib/cache"
 import { env } from "@/lib/env"
 import { AppError, errorResponse } from "@/lib/errors"
 import { completeJson } from "@/lib/openrouter"
@@ -18,9 +21,29 @@ export async function POST(req: Request) {
       throw new AppError("BAD_REQUEST", "A concept term is required.")
     }
 
+    const cachedId = getCachedArxivId(paper.arxivId)
+    if (cachedId) {
+      const slug = term
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .trim()
+      const cachedConcept = loadCachedData(
+        cachedId,
+        path.join("concepts", `${slug}.json`)
+      )
+      if (cachedConcept) {
+        return Response.json(cachedConcept)
+      }
+    }
+
     const detail = await completeJson(
-      { model: env.smartModel, messages: buildConceptMessages(paper, term), temperature: 0.4 },
-      conceptDetailSchema,
+      {
+        model: env.smartModel,
+        messages: buildConceptMessages(paper, term),
+        temperature: 0.4,
+      },
+      conceptDetailSchema
     )
 
     const result: ConceptDetail = { term, ...detail }

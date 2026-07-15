@@ -8,50 +8,67 @@ import { ExplanationView } from "@/components/paper/explanation-view"
 import { SectionsView } from "@/components/paper/sections-view"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import type { ViewMode } from "@/components/workspace/workspace"
 
-export function CenterPanel() {
+interface CenterPanelProps {
+  viewMode: ViewMode
+}
+
+export function CenterPanel({ viewMode }: CenterPanelProps) {
   const { paper } = usePaperSession()
   if (!paper) return null
 
   const authors =
     paper.authors.length > 0
-      ? paper.authors.slice(0, 6).join(", ") + (paper.authors.length > 6 ? " et al." : "")
+      ? paper.authors.slice(0, 6).join(", ") +
+        (paper.authors.length > 6 ? " et al." : "")
       : "Unknown authors"
 
   return (
-    <ScrollArea className="scroll-thin h-full bg-background">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-6 py-8">
-        <header className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="font-mono text-[0.7rem] uppercase">
-              {paper.source}
-            </Badge>
-            {paper.published ? (
-              <span className="text-xs text-muted-foreground">{paper.published}</span>
-            ) : null}
-            <span className="text-xs text-muted-foreground">
-              {paper.wordCount.toLocaleString()} words
-            </span>
-          </div>
-          <h1 className="reading-balance text-2xl font-semibold tracking-tight text-foreground">
-            {paper.title}
-          </h1>
-          <p className="text-sm text-muted-foreground">{authors}</p>
-          <a
-            href={paper.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex w-fit items-center gap-1.5 text-xs text-primary transition-colors hover:text-primary/80"
-          >
-            View original
-            <ExternalLinkIcon className="size-3" />
-          </a>
-        </header>
-
-        <SummaryCard />
-        <ExplanationView />
-        <SectionsView />
-      </div>
-    </ScrollArea>
+    <div className="flex h-full flex-col bg-background">
+      {viewMode === "analysis" ? (
+        <>
+          <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b px-6">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+              <Badge
+                variant="secondary"
+                className="h-4.5 px-1.5 font-mono text-[0.6rem] uppercase"
+              >
+                {paper.source}
+              </Badge>
+              {paper.published ? <span>{paper.published}</span> : null}
+              <span>·</span>
+              <span>{paper.wordCount.toLocaleString()} words</span>
+              <span>·</span>
+              <span className="truncate">{authors}</span>
+            </div>
+            <a
+              href={paper.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              Original
+              <ExternalLinkIcon className="size-3" />
+            </a>
+          </header>
+          <ScrollArea className="scroll-thin min-h-0 flex-1">
+            <div className="flex w-full flex-col divide-y divide-border/60">
+              <SummaryCard />
+              <ExplanationView />
+              <SectionsView />
+            </div>
+          </ScrollArea>
+        </>
+      ) : (
+        <div className="min-h-0 flex-1 p-4">
+          <iframe
+            src={`/api/pdf?url=${encodeURIComponent(paper.pdfUrl)}`}
+            className="h-full w-full rounded-lg border bg-muted/10 shadow-sm"
+            title={`PDF viewer for ${paper.title}`}
+          />
+        </div>
+      )}
+    </div>
   )
 }

@@ -1,0 +1,20 @@
+{
+  "concept": {
+    "term": "Next Sentence Prediction (NSP)",
+    "definition": "Next Sentence Prediction (NSP) is a binary pre-training objective where the model learns to predict whether a given sentence B naturally follows sentence A in the original document.",
+    "simpleExplanation": "The model is shown two sentences and must decide if the second sentence is the actual next sentence or a random one. This forces it to understand relationships between sentences, not just individual word meanings.",
+    "analogy": "It's like a reading comprehension quiz where you're given two pages of a story and must say whether page B comes right after page A or is taken from a completely different book.",
+    "whyUsedHere": "BERT uses NSP during pre-training because many downstream tasks (like question answering or natural language inference) require understanding the relationship between two sentences. Standard language modeling only predicts the next word and doesn't capture sentence-level connections. NSP is simple to generate automatically from any text corpus (just pair consecutive sentences vs. random ones) and requires no human annotation.",
+    "prerequisites": [
+      "Language model pre-training (learning general language representations from unlabeled text)",
+      "Transformer architecture (self-attention mechanism)",
+      "Masked Language Model (MLM) – BERT's other pre-training task"
+    ],
+    "related": [
+      "Natural Language Inference (NLI) – a task that explicitly tests sentence-pair understanding",
+      "Contrastive learning – learning by distinguishing positive from negative pairs",
+      "Sentence embedding methods (e.g., SkipThought, QuickThoughts)",
+      "Fine-tuning (adapting a pre-trained model to a specific task)"
+    ]
+  }
+}

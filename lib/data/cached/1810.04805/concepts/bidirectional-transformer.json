@@ -1,0 +1,20 @@
+{
+  "concept": {
+    "term": "Bidirectional Transformer",
+    "definition": "A Bidirectional Transformer is a neural architecture that processes input tokens by attending to both left and right context simultaneously in every layer, using self-attention without directional masking.",
+    "simpleExplanation": "Normally, a language model reads text left-to-right, so each word only knows the words before it. A Bidirectional Transformer reads the whole sentence at once — each word can look at all other words on both sides to understand its meaning. This gives a much richer representation, especially for words whose meaning depends on what comes after them.",
+    "analogy": "Imagine reading a sentence with a missing word. A left-to-right model is like someone who reads only the words before the blank and guesses. A bidirectional model is like someone who reads the entire sentence first, using both what came before and after the blank, then fills it in with much better accuracy.",
+    "whyUsedHere": "The paper argues that prior models like GPT are unidirectional (left-to-right), which limits their ability to represent context, especially for token-level tasks like question answering. BERT uses bidirectional self-attention via the Masked Language Model objective, where random tokens are hidden and predicted using full context, enabling deep bidirectional representations.",
+    "prerequisites": [
+      "Transformer architecture (self-attention, multi-head attention, positional encoding)",
+      "Language modeling (predicting the next token)",
+      "Fine-tuning vs. feature-based transfer learning"
+    ],
+    "related": [
+      "Masked Language Model (MLM)",
+      "Next Sentence Prediction (NSP)",
+      "Unidirectional Transformer decoder (GPT)",
+      "ELMo (shallow bidirectional LSTM)"
+    ]
+  }
+}

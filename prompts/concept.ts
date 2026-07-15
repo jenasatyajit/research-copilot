@@ -6,7 +6,7 @@ import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
 /** Deep explanation of a single concept, grounded in this paper. */
 export function buildConceptMessages(
   paper: Pick<ProcessedPaper, "title" | "authors" | "abstract" | "fullText">,
-  term: string,
+  term: string
 ): ChatMessageInput[] {
   const user = [
     paperHeader(paper),

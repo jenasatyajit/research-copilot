@@ -1,0 +1,60 @@
+## Background
+
+Deep convolutional neural networks (CNNs) became the dominant approach for image classification around 2012 (AlexNet). A clear trend: deeper networks (more stacked layers) could learn richer feature hierarchies and achieve better accuracy. VGG networks showed that going from 8 to 16–19 layers steadily improved performance. This suggested depth was critical.
+
+But training very deep networks was hard for two known reasons:
+
+- **Vanishing/exploding gradients** – early layers get tiny or huge gradients, preventing convergence. This was largely solved by normalized initialization and **Batch Normalization (BN)** (normalizing each layer’s activations).
+- **Degradation** – a newer, subtler problem: adding more layers *increases* training error, even when gradients are healthy.
+
+## The Problem
+
+The paper focuses on the **degradation problem**. Counterintuitively, a 56-layer plain CNN (just stacked conv layers) has *higher* training error than a 20-layer version on CIFAR-10 (Figure 1). This is not overfitting – training error is higher, not lower. It’s an optimization difficulty: the solver cannot find a good solution even though the shallower network’s solution is a subset of the deeper one’s.
+
+If you add identity layers (output = input) to the 20-layer network, you get a 56-layer network that should be at least as good. But SGD can’t learn those identity mappings from scratch. The deeper plain net “forgets” what it learned early on.
+
+Key insight: **stacked nonlinear layers have trouble approximating the identity function**. The optimization landscape is poorly conditioned.
+
+## The Method
+
+Residual learning reformulates the mapping. Instead of trying to learn the desired mapping \(H(x)\) directly, let a stack of layers learn the **residual** \(F(x) = H(x) - x\). Then the original mapping becomes \(F(x) + x\). This is realized by a **shortcut connection** that adds the input \(x\) to the output of the stacked layers (Figure 2).
+
+**Intuition**: If identity is optimal, it’s easier to push the residual to zero than to fit an identity mapping through nonlinear layers. In practice, the optimal function is often close to identity, so learning small adjustments is easier.
+
+**Key design choices**:
+
+- **Identity shortcut** (no extra parameters). Just element-wise addition.
+- **Projection shortcut** (1×1 conv) used only when dimensions mismatch (e.g., doubling channels). Rarely needed – identity with zero-padding works almost as well.
+- **Bottleneck block** for deeper nets: a 1×1 conv reduces channels, then 3×3 conv, then 1×1 restores channels. This is efficient; identity shortcuts keep it parameter-light.
+
+The network is trained end-to-end with standard SGD and BN. No dropout.
+
+## Main Findings
+
+**ImageNet classification** (1.28M images, 1000 classes):
+
+- 34-layer ResNet beats 18-layer ResNet (25.0% vs 27.9% top-1 error), reversing degradation. Plain 34-layer is worse than plain 18-layer.
+- Deeper ResNets (50, 101, 152 layers) improve further: single-model top-5 error drops to 4.49% (ResNet-152).
+- An ensemble of 6 ResNets achieves **3.57% top-5 error** on the test set, winning ILSVRC 2015.
+- Complexity: ResNet-152 (11.3 billion FLOPs) is still lower than VGG-19 (19.6 billion FLOPs).
+
+**CIFAR-10** (smaller dataset):
+
+- 110-layer ResNet trains well and reaches 6.43% test error (competitive with prior state-of-the-art).
+- Even 1202-layer ResNet converges to low training error (<0.1%), though it overfits (7.93% test error).
+- Analysis: layer responses (standard deviations) are much smaller in ResNets than in plain nets, confirming that residuals are near zero.
+
+**Object detection** (PASCAL VOC, COCO):
+
+- Using Faster R-CNN with ResNet-101 backbone **improves mAP by 28% relative** on COCO over VGG-16 (6% absolute improvement in mAP@[.5,.95]).
+- Won 1st places in COCO detection, segmentation, ImageNet detection, and localization.
+
+## Why It Matters
+
+ResNet made it practical to train networks with **hundreds of layers** (up to 152 on ImageNet, 1202 on CIFAR). This depth directly translated to better accuracy across many vision tasks.
+
+The key insight – **identity shortcut connections** – became a standard building block in later architectures (DenseNet, ResNeXt, and even transformers). It showed that carefully designed skip connections can precondition the optimization, making deep networks easy to train.
+
+ResNet demonstrated that depth alone (without fancy modules) could surpass human-level performance on ImageNet. It remains a go-to backbone for feature extraction and is widely used in transfer learning.
+
+The principle of learning residuals generalizes beyond vision: it inspired residual blocks in NLP (e.g., Transformer’s residual connections) and other domains.

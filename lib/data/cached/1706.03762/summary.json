@@ -1,0 +1,10 @@
+{
+  "summary": {
+    "problem": "Sequence transduction models like machine translation rely on recurrent or convolutional neural networks, which process tokens sequentially. This sequential nature prevents parallelization during training and makes it hard to capture long-range dependencies between distant positions.",
+    "solution": "The authors propose the Transformer, a new architecture that uses only attention mechanisms—no recurrence or convolution. It consists of stacked encoder and decoder layers, each with multi-head self-attention and position-wise feed-forward networks, plus positional encodings to retain order information.",
+    "keyInnovation": "Replacing sequential recurrence with parallelizable self-attention: scaled dot-product attention computes weighted sums over all positions in constant time, and multi-head attention allows the model to jointly attend to information from different representation subspaces.",
+    "results": "On WMT 2014 English-to-German translation, the Transformer achieves 28.4 BLEU, outperforming all previous models (including ensembles) by over 2 BLEU. On English-to-French, it reaches 41.8 BLEU, a new single-model state-of-the-art, trained in 3.5 days on 8 GPUs. It also generalizes well to English constituency parsing.",
+    "whyItMatters": "The Transformer dramatically reduces training time (more parallelizable) while improving translation quality. Its attention-based design has become the foundation for nearly all modern NLP models (e.g., BERT, GPT), revolutionizing the field.",
+    "shouldYouRead": "If you work with sequences in NLP or want to understand the core ideas behind modern deep learning architectures, this paper is essential reading."
+  }
+}

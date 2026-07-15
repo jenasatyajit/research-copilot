@@ -1,4 +1,5 @@
 import { parseBody, readJson } from "@/lib/api"
+import { getCachedArxivId, loadCachedData } from "@/lib/cache"
 import { env } from "@/lib/env"
 import { AppError, errorResponse } from "@/lib/errors"
 import { complete } from "@/lib/openrouter"
@@ -24,6 +25,14 @@ export async function POST(req: Request) {
     const body = await readJson<{ paper?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
 
+    const cachedId = getCachedArxivId(paper.arxivId)
+    if (cachedId) {
+      const cachedMindmap = loadCachedData(cachedId, "mindmap.json")
+      if (cachedMindmap) {
+        return Response.json(cachedMindmap)
+      }
+    }
+
     const raw = await complete({
       model: env.smartModel,
       messages: buildMindMapMessages(paper),
@@ -32,9 +41,13 @@ export async function POST(req: Request) {
     })
     const mermaid = sanitizeMermaid(raw)
     if (!/\b(graph|flowchart|mindmap)\b/i.test(mermaid)) {
-      throw new AppError("AI_ERROR", "The model didn't return a valid mind map.", {
-        hint: "Try generating it again.",
-      })
+      throw new AppError(
+        "AI_ERROR",
+        "The model didn't return a valid mind map.",
+        {
+          hint: "Try generating it again.",
+        }
+      )
     }
     return Response.json({ mermaid })
   } catch (err) {

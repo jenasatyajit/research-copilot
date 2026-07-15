@@ -5,7 +5,9 @@ import type { ProcessedPaper } from "@/types"
 import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
 
 /** Extract the technical concepts a reader is most likely to need explained. */
-export function buildConceptsMessages(paper: ProcessedPaper): ChatMessageInput[] {
+export function buildConceptsMessages(
+  paper: ProcessedPaper
+): ChatMessageInput[] {
   const user = [
     paperHeader(paper),
     "",

@@ -1,0 +1,44 @@
+{
+  "concepts": [
+    {
+      "id": "concept-0",
+      "term": "Transformer architecture",
+      "short": "The novel neural network architecture that replaces recurrent and convolutional layers entirely with attention mechanisms, enabling parallel processing and improved training efficiency."
+    },
+    {
+      "id": "concept-1",
+      "term": "Self-attention",
+      "short": "An attention mechanism that computes a weighted sum over all positions in the same sequence, allowing each token to directly attend to every other token in the input."
+    },
+    {
+      "id": "concept-2",
+      "term": "Multi-head attention",
+      "short": "A technique that runs multiple scaled dot-product attention functions in parallel, each with different learned projections, to capture information from different representation subspaces."
+    },
+    {
+      "id": "concept-3",
+      "term": "Scaled dot-product attention",
+      "short": "The core attention function that computes compatibility scores as dot products of queries and keys, scaled by 1/√dk to prevent vanishing gradients, then applies softmax to weight values."
+    },
+    {
+      "id": "concept-4",
+      "term": "Positional encoding",
+      "short": "Sinusoidal signals added to input embeddings to inject information about token order, since the Transformer has no inherent notion of sequence position."
+    },
+    {
+      "id": "concept-5",
+      "term": "Encoder-decoder structure",
+      "short": "The overall architecture with a stack of 6 identical encoder layers and 6 identical decoder layers, where the decoder additionally attends to encoder outputs via cross-attention."
+    },
+    {
+      "id": "concept-6",
+      "term": "Residual connections and layer normalization",
+      "short": "Residual connections around each sub-layer followed by layer normalization, enabling training of deep networks by mitigating vanishing gradients and stabilizing activations."
+    },
+    {
+      "id": "concept-7",
+      "term": "Masked self-attention in decoder",
+      "short": "A modification to self-attention in the decoder that prevents positions from attending to subsequent positions, preserving the auto-regressive property during generation."
+    }
+  ]
+}
