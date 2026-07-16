@@ -5,7 +5,7 @@ import { AppError, errorResponse } from "@/lib/errors"
 import { complete } from "@/lib/openrouter"
 import { paperInputSchema } from "@/lib/schemas"
 import { buildMindMapMessages } from "@/prompts/mindmap"
-import type { ProcessedPaper } from "@/types"
+import type { ExplanationMode, ProcessedPaper } from "@/types"
 import { findGeneration, saveGeneration } from "@/lib/db/generations"
 
 export const runtime = "nodejs"
@@ -23,8 +23,9 @@ function sanitizeMermaid(raw: string): string {
 
 export async function POST(req: Request) {
   try {
-    const body = await readJson<{ paper?: unknown }>(req)
+    const body = await readJson<{ paper?: unknown; mode?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
+    const mode = (body.mode === "learning" ? "learning" : "standard") as ExplanationMode
     const paperId = paper.arxivId || paper.id || ""
 
     // 1. Check pre-shipped file cache (for demo papers)
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
     console.log(`[Cache Miss] Generating mindmap for paper: ${paperId}`)
     const raw = await complete({
       model: env.smartModel,
-      messages: buildMindMapMessages(paper),
+      messages: buildMindMapMessages(paper, mode),
       temperature: 0.3,
       maxTokens: 1200,
     })

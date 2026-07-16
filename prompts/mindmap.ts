@@ -1,12 +1,13 @@
 import type { ChatMessageInput } from "@/lib/openrouter"
 import { MAX_CONTEXT_CHARS } from "@/lib/constants"
-import type { ProcessedPaper } from "@/types"
+import type { ExplanationMode, ProcessedPaper } from "@/types"
 
-import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
+import { clip, getSystemPrompt, paperHeader } from "./shared"
 
 /** Generate a Mermaid flowchart capturing the paper's structure. */
 export function buildMindMapMessages(
-  paper: ProcessedPaper
+  paper: ProcessedPaper,
+  mode: ExplanationMode = "standard"
 ): ChatMessageInput[] {
   const user = [
     paperHeader(paper),
@@ -26,7 +27,7 @@ export function buildMindMapMessages(
   ].join("\n")
 
   return [
-    { role: "system", content: TUTOR_SYSTEM },
+    { role: "system", content: getSystemPrompt(mode) },
     { role: "user", content: user },
   ]
 }

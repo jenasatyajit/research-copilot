@@ -13,10 +13,12 @@ import { useParams, useRouter } from "next/navigation"
 
 import type { ClientError } from "@/lib/errors"
 import { postJson, streamText } from "@/lib/fetcher"
+import { useMode } from "@/components/providers/mode-provider"
 import type {
   ChatMessage,
   ConceptDetail,
   ConceptRef,
+  ExplanationMode,
   PaperSummary,
   ProcessedPaper,
   SectionExplanation,
@@ -101,6 +103,7 @@ export function PaperSessionProvider({
   const router = useRouter()
   const params = useParams()
   const routePaperId = params?.id as string | undefined
+  const { mode } = useMode()
 
   const [paper, setPaper] = useState<ProcessedPaper | null>(null)
   const [processStatus, setProcessStatus] = useState<AsyncStatus>("idle")
@@ -142,7 +145,7 @@ export function PaperSessionProvider({
     try {
       const res = await postJson<{ summary: PaperSummary }>(
         "/api/summary",
-        { paper: target },
+        { paper: target, mode },
         signal()
       )
       setSummary({ status: "done", data: res.summary })
@@ -150,14 +153,14 @@ export function PaperSessionProvider({
       if (isAbort(err)) return
       setSummary({ status: "error", error: asClientError(err) })
     }
-  }, [])
+  }, [mode])
 
   const runExplanation = useCallback(async (target: ProcessedPaper) => {
     setExplanation({ status: "streaming", text: "" })
     try {
       await streamText(
         "/api/explanation",
-        { paper: target },
+        { paper: target, mode },
         {
           onChunk: (_, full) =>
             setExplanation({ status: "streaming", text: full }),
@@ -173,14 +176,14 @@ export function PaperSessionProvider({
         error: asClientError(err),
       }))
     }
-  }, [])
+  }, [mode])
 
   const runSections = useCallback(async (target: ProcessedPaper) => {
     setSections({ status: "loading" })
     try {
       const res = await postJson<{ sections: SectionExplanation[] }>(
         "/api/sections",
-        { paper: target },
+        { paper: target, mode },
         signal()
       )
       setSections({ status: "done", data: res.sections })
@@ -188,14 +191,14 @@ export function PaperSessionProvider({
       if (isAbort(err)) return
       setSections({ status: "error", error: asClientError(err) })
     }
-  }, [])
+  }, [mode])
 
   const runConcepts = useCallback(async (target: ProcessedPaper) => {
     setConcepts({ status: "loading" })
     try {
       const res = await postJson<{ concepts: ConceptRef[] }>(
         "/api/concepts",
-        { paper: target },
+        { paper: target, mode },
         signal()
       )
       setConcepts({ status: "done", data: res.concepts })
@@ -203,7 +206,7 @@ export function PaperSessionProvider({
       if (isAbort(err)) return
       setConcepts({ status: "error", error: asClientError(err) })
     }
-  }, [])
+  }, [mode])
 
   const startGenerations = useCallback(
     (target: ProcessedPaper) => {
@@ -356,7 +359,7 @@ export function PaperSessionProvider({
     try {
       const res = await postJson<{ concept: ConceptDetail }>(
         "/api/concept",
-        { paper: target, term },
+        { paper: target, term, mode },
         signal()
       )
       setActiveConcept({ term, status: "done", data: res.concept })
@@ -364,7 +367,7 @@ export function PaperSessionProvider({
       if (isAbort(err)) return
       setActiveConcept({ term, status: "error", error: asClientError(err) })
     }
-  }, [])
+  }, [mode])
 
   const closeConcept = useCallback(() => setActiveConcept(null), [])
 
@@ -375,7 +378,7 @@ export function PaperSessionProvider({
     try {
       const res = await postJson<{ mermaid: string }>(
         "/api/mindmap",
-        { paper: target },
+        { paper: target, mode },
         signal()
       )
       setMindmap({ status: "done", mermaid: res.mermaid })
@@ -383,7 +386,7 @@ export function PaperSessionProvider({
       if (isAbort(err)) return
       setMindmap({ status: "error", error: asClientError(err) })
     }
-  }, [])
+  }, [mode])
 
   const switchConversation = useCallback(async (id: string) => {
     setActiveConversationId(id)
@@ -497,6 +500,7 @@ export function PaperSessionProvider({
             conversationId: activeConversationId,
             userMessageId: userMsgId,
             assistantMessageId: assistantMsgId,
+            mode,
           },
           {
             onChunk: (_, full) =>
@@ -536,7 +540,7 @@ export function PaperSessionProvider({
         )
       }
     },
-    [chat, chatStatus, activeConversationId]
+    [chat, chatStatus, activeConversationId, mode]
   )
 
   const value = useMemo<SessionValue>(

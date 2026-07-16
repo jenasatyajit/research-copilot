@@ -5,7 +5,7 @@ import { AppError, errorResponse } from "@/lib/errors"
 import { completeJson } from "@/lib/openrouter"
 import { paperInputSchema, sectionsResponseSchema } from "@/lib/schemas"
 import { buildSectionsMessages, explainableSections } from "@/prompts/sections"
-import type { ProcessedPaper, SectionExplanation } from "@/types"
+import type { ExplanationMode, ProcessedPaper, SectionExplanation } from "@/types"
 import { findGeneration, saveGeneration } from "@/lib/db/generations"
 
 export const runtime = "nodejs"
@@ -13,8 +13,9 @@ export const maxDuration = 120
 
 export async function POST(req: Request) {
   try {
-    const body = await readJson<{ paper?: unknown }>(req)
+    const body = await readJson<{ paper?: unknown; mode?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
+    const mode = (body.mode === "learning" ? "learning" : "standard") as ExplanationMode
     const paperId = paper.arxivId || paper.id || ""
 
     // 1. Check pre-shipped file cache (for demo papers)
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
     const result = await completeJson(
       {
         model: env.fastModel,
-        messages: buildSectionsMessages(paper, sections),
+        messages: buildSectionsMessages(paper, sections, mode),
         temperature: 0.3,
       },
       sectionsResponseSchema

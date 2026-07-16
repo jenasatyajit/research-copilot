@@ -3,13 +3,16 @@
 import { useEffect, useState } from "react"
 import {
   ArrowRightIcon,
+  BookOpenIcon,
   CircleAlertIcon,
   Link2Icon,
   TelescopeIcon,
+  ZapIcon,
 } from "lucide-react"
 
 import { APP_NAME, EXAMPLE_PAPERS } from "@/lib/constants"
 import { usePaperSession } from "@/components/providers/paper-session"
+import { useMode } from "@/components/providers/mode-provider"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,10 +22,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
-import type { PaperMeta } from "@/types"
+import type { ExplanationMode, PaperMeta } from "@/types"
 
 export function Landing() {
   const { processUrl, processStatus, processError } = usePaperSession()
+  const { mode, setMode } = useMode()
   const [value, setValue] = useState("")
   const [recentPapers, setRecentPapers] = useState<PaperMeta[]>([])
   const isLoading = processStatus === "loading"
@@ -66,6 +70,24 @@ export function Landing() {
           Paste an arXiv link or PDF. Get a plain-English explanation, explore
           every concept, and ask anything — without leaving to Google.
         </p>
+
+        {/* Mode Toggle */}
+        <div className="mt-7 flex items-center gap-1 rounded-full bg-muted/50 p-1 ring-1 ring-border/50">
+          <ModeButton
+            active={mode === "standard"}
+            onClick={() => setMode("standard")}
+            icon={<ZapIcon className="size-3.5" />}
+            label="Standard"
+            description="Concise, direct"
+          />
+          <ModeButton
+            active={mode === "learning"}
+            onClick={() => setMode("learning")}
+            icon={<BookOpenIcon className="size-3.5" />}
+            label="Learning"
+            description="Step-by-step, beginner-friendly"
+          />
+        </div>
 
         <div className="mt-9 w-full max-w-xl">
           <InputGroup className="h-12 rounded-2xl bg-card/80 ring-1 ring-border backdrop-blur">
@@ -179,6 +201,44 @@ export function Landing() {
         Learning-first · No account needed · arXiv &amp; PDF supported
       </footer>
     </main>
+  )
+}
+
+function ModeButton({
+  active,
+  onClick,
+  icon,
+  label,
+  description,
+}: {
+  active: boolean
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+  description: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+        active
+          ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+          : "text-muted-foreground hover:text-foreground"
+      }`}
+      aria-pressed={active}
+    >
+      <span className={active ? "text-primary" : "text-muted-foreground/70"}>
+        {icon}
+      </span>
+      <span>{label}</span>
+      <span
+        className={`hidden text-xs sm:inline ${
+          active ? "text-muted-foreground" : "text-muted-foreground/60"
+        }`}
+      >
+        · {description}
+      </span>
+    </button>
   )
 }
 

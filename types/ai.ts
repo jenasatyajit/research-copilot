@@ -1,3 +1,6 @@
+/** Explanation depth mode — controls system prompt tone and detail level. */
+export type ExplanationMode = "standard" | "learning"
+
 /** 30-second summary — scannable, labelled fields (150–250 words total). */
 export interface PaperSummary {
   problem: string

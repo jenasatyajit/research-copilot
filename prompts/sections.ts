@@ -1,7 +1,7 @@
 import type { ChatMessageInput } from "@/lib/openrouter"
-import type { ProcessedPaper, RawSection } from "@/types"
+import type { ExplanationMode, ProcessedPaper, RawSection } from "@/types"
 
-import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
+import { clip, getSystemPrompt, paperHeader } from "./shared"
 
 const SKIP = /(references|bibliography|acknowledg|appendix)/i
 const MAX_SECTIONS = 12
@@ -15,7 +15,8 @@ export function explainableSections(sections: RawSection[]): RawSection[] {
 /** Section-by-section explanations as a JSON array keyed by sectionId. */
 export function buildSectionsMessages(
   paper: Pick<ProcessedPaper, "title" | "authors" | "abstract">,
-  sections: RawSection[]
+  sections: RawSection[],
+  mode: ExplanationMode = "standard"
 ): ChatMessageInput[] {
   const sectionBlocks = sections
     .map(
@@ -40,7 +41,7 @@ export function buildSectionsMessages(
   ].join("\n")
 
   return [
-    { role: "system", content: TUTOR_SYSTEM },
+    { role: "system", content: getSystemPrompt(mode) },
     { role: "user", content: user },
   ]
 }

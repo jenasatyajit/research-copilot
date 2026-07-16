@@ -1,8 +1,8 @@
 import type { ChatMessageInput } from "@/lib/openrouter"
 import { MAX_CONTEXT_CHARS } from "@/lib/constants"
-import type { ChatMessage, ProcessedPaper } from "@/types"
+import type { ChatMessage, ExplanationMode, ProcessedPaper } from "@/types"
 
-import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
+import { clip, getSystemPrompt, paperHeader } from "./shared"
 
 const CHAT_RULES = [
   "You are answering questions strictly about the paper provided below.",
@@ -15,7 +15,8 @@ const CHAT_RULES = [
 export function buildChatMessages(
   paper: ProcessedPaper,
   history: ChatMessage[],
-  question: string
+  question: string,
+  mode: ExplanationMode = "standard"
 ): ChatMessageInput[] {
   const context = [
     paperHeader(paper),
@@ -30,7 +31,7 @@ export function buildChatMessages(
     .map((m) => ({ role: m.role, content: m.content }))
 
   return [
-    { role: "system", content: `${TUTOR_SYSTEM}\n\n${CHAT_RULES}` },
+    { role: "system", content: `${getSystemPrompt(mode)}\n\n${CHAT_RULES}` },
     { role: "system", content: context },
     ...priorTurns,
     { role: "user", content: question },

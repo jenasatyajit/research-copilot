@@ -1,12 +1,13 @@
 import type { ChatMessageInput } from "@/lib/openrouter"
-import type { ProcessedPaper } from "@/types"
+import type { ExplanationMode, ProcessedPaper } from "@/types"
 
-import { clip, paperHeader, TUTOR_SYSTEM } from "./shared"
+import { clip, getSystemPrompt, paperHeader } from "./shared"
 
 /** Deep explanation of a single concept, grounded in this paper. */
 export function buildConceptMessages(
   paper: Pick<ProcessedPaper, "title" | "authors" | "abstract" | "fullText">,
-  term: string
+  term: string,
+  mode: ExplanationMode = "standard"
 ): ChatMessageInput[] {
   const user = [
     paperHeader(paper),
@@ -26,7 +27,7 @@ export function buildConceptMessages(
   ].join("\n")
 
   return [
-    { role: "system", content: TUTOR_SYSTEM },
+    { role: "system", content: getSystemPrompt(mode) },
     { role: "user", content: user },
   ]
 }

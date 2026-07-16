@@ -4,7 +4,7 @@ import { AppError, errorResponse } from "@/lib/errors"
 import { streamCompletion, streamToResponse } from "@/lib/openrouter"
 import { paperInputSchema } from "@/lib/schemas"
 import { buildChatMessages } from "@/prompts/chat"
-import type { ChatMessage, ProcessedPaper } from "@/types"
+import type { ChatMessage, ExplanationMode, ProcessedPaper } from "@/types"
 import { addMessage } from "@/lib/db/messages"
 import crypto from "crypto"
 
@@ -39,11 +39,13 @@ export async function POST(req: Request) {
       paper?: unknown
       history?: unknown
       question?: unknown
+      mode?: unknown
       conversationId?: string
       userMessageId?: string
       assistantMessageId?: string
     }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
+    const mode = (body.mode === "learning" ? "learning" : "standard") as ExplanationMode
     const question =
       typeof body.question === "string" ? body.question.trim() : ""
     if (!question) {
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
 
     const generator = streamCompletion({
       model: env.smartModel,
-      messages: buildChatMessages(paper, history, question),
+      messages: buildChatMessages(paper, history, question, mode),
       temperature: 0.4,
       maxTokens: 1600,
     })

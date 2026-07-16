@@ -7,7 +7,7 @@ import { AppError, errorResponse } from "@/lib/errors"
 import { completeJson } from "@/lib/openrouter"
 import { conceptDetailSchema, paperInputSchema } from "@/lib/schemas"
 import { buildConceptMessages } from "@/prompts/concept"
-import type { ConceptDetail, ProcessedPaper } from "@/types"
+import type { ConceptDetail, ExplanationMode, ProcessedPaper } from "@/types"
 import { findConceptDetail, saveConceptDetail } from "@/lib/db/concepts"
 
 export const runtime = "nodejs"
@@ -15,12 +15,13 @@ export const maxDuration = 60
 
 export async function POST(req: Request) {
   try {
-    const body = await readJson<{ paper?: unknown; term?: unknown }>(req)
+    const body = await readJson<{ paper?: unknown; term?: unknown; mode?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
     const term = typeof body.term === "string" ? body.term.trim() : ""
     if (!term) {
       throw new AppError("BAD_REQUEST", "A concept term is required.")
     }
+    const mode = (body.mode === "learning" ? "learning" : "standard") as ExplanationMode
     const paperId = paper.arxivId || paper.id || ""
 
     // 1. Check pre-shipped file cache (for demo papers)
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
     const detail = await completeJson(
       {
         model: env.smartModel,
-        messages: buildConceptMessages(paper, term),
+        messages: buildConceptMessages(paper, term, mode),
         temperature: 0.4,
       },
       conceptDetailSchema

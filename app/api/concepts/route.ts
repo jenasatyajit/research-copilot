@@ -5,7 +5,7 @@ import { errorResponse } from "@/lib/errors"
 import { completeJson } from "@/lib/openrouter"
 import { conceptsResponseSchema, paperInputSchema } from "@/lib/schemas"
 import { buildConceptsMessages } from "@/prompts/concepts"
-import type { ConceptRef, ProcessedPaper } from "@/types"
+import type { ConceptRef, ExplanationMode, ProcessedPaper } from "@/types"
 import { findGeneration, saveGeneration } from "@/lib/db/generations"
 
 export const runtime = "nodejs"
@@ -13,8 +13,9 @@ export const maxDuration = 60
 
 export async function POST(req: Request) {
   try {
-    const body = await readJson<{ paper?: unknown }>(req)
+    const body = await readJson<{ paper?: unknown; mode?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
+    const mode = (body.mode === "learning" ? "learning" : "standard") as ExplanationMode
     const paperId = paper.arxivId || paper.id || ""
 
     // 1. Check pre-shipped file cache (for demo papers)
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     const result = await completeJson(
       {
         model: env.fastModel,
-        messages: buildConceptsMessages(paper),
+        messages: buildConceptsMessages(paper, mode),
         temperature: 0.3,
       },
       conceptsResponseSchema
