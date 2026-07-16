@@ -6,6 +6,7 @@ import { complete } from "@/lib/openrouter"
 import { paperInputSchema } from "@/lib/schemas"
 import { buildMindMapMessages } from "@/prompts/mindmap"
 import type { ProcessedPaper } from "@/types"
+import { findGeneration, saveGeneration } from "@/lib/db/generations"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -24,8 +25,10 @@ export async function POST(req: Request) {
   try {
     const body = await readJson<{ paper?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
+    const paperId = paper.arxivId || paper.id || ""
 
-    const cachedId = getCachedArxivId(paper.arxivId)
+    // 1. Check pre-shipped file cache (for demo papers)
+    const cachedId = getCachedArxivId(paperId)
     if (cachedId) {
       const cachedMindmap = loadCachedData(cachedId, "mindmap.json")
       if (cachedMindmap) {
@@ -33,6 +36,17 @@ export async function POST(req: Request) {
       }
     }
 
+    // 2. Check SQLite database cache next
+    if (paperId) {
+      const dbMindmap = findGeneration(paperId, "mindmap")
+      if (dbMindmap) {
+        console.log(`[Cache Hit] Serving mindmap from SQLite for paper: ${paperId}`)
+        return Response.json(JSON.parse(dbMindmap))
+      }
+    }
+
+    // 3. Generate and cache
+    console.log(`[Cache Miss] Generating mindmap for paper: ${paperId}`)
     const raw = await complete({
       model: env.smartModel,
       messages: buildMindMapMessages(paper),
@@ -49,7 +63,13 @@ export async function POST(req: Request) {
         }
       )
     }
-    return Response.json({ mermaid })
+
+    const responsePayload = { mermaid }
+    if (paperId) {
+      saveGeneration(paperId, "mindmap", JSON.stringify(responsePayload), env.smartModel)
+    }
+
+    return Response.json(responsePayload)
   } catch (err) {
     return errorResponse(err)
   }

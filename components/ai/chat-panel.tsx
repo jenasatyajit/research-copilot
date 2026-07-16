@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowUpIcon, SparklesIcon } from "lucide-react"
+import { ArrowUpIcon, SparklesIcon, ChevronDownIcon, CheckIcon, PlusIcon, TrashIcon } from "lucide-react"
 
 import { usePaperSession } from "@/components/providers/paper-session"
 import { Markdown } from "@/components/shared/markdown"
@@ -13,6 +13,14 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import type { ChatMessage } from "@/types"
 
@@ -24,10 +32,22 @@ const SUGGESTIONS = [
 ]
 
 export function ChatPanel() {
-  const { chat, chatStatus, sendMessage } = usePaperSession()
+  const {
+    paper,
+    chat,
+    chatStatus,
+    sendMessage,
+    conversations,
+    activeConversationId,
+    switchConversation,
+    createNewConversation,
+    deleteConversation,
+  } = usePaperSession()
   const [input, setInput] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
   const isStreaming = chatStatus === "streaming"
+
+  const activeConv = conversations.find((c) => c.id === activeConversationId)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -45,12 +65,58 @@ export function ChatPanel() {
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-        <SparklesIcon className="size-4 text-primary" />
-        <span className="text-sm font-medium">Ask the paper</span>
-        {isStreaming ? (
-          <Spinner className="ml-auto size-3.5 text-muted-foreground" />
-        ) : null}
+      <header className="flex h-14 shrink-0 items-center justify-between border-b px-4">
+        <div className="flex items-center gap-2">
+          <SparklesIcon className="size-4 text-primary" />
+          <span className="text-sm font-medium">Ask the paper</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {isStreaming ? (
+            <Spinner className="size-3.5 text-muted-foreground mr-1" />
+          ) : null}
+          {paper && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs font-normal px-2.5">
+                  <span className="max-w-[100px] truncate">
+                    {activeConv?.title || "Threads"}
+                  </span>
+                  <ChevronDownIcon className="size-3 opacity-60 shrink-0" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel>Chat Threads</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {conversations.map((c) => (
+                  <DropdownMenuItem
+                    key={c.id}
+                    onClick={() => switchConversation(c.id)}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <span className="truncate flex-1">{c.title || "Untitled Chat"}</span>
+                    {activeConversationId === c.id && (
+                      <CheckIcon className="size-3.5 text-primary shrink-0" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => createNewConversation()} className="text-primary focus:text-primary">
+                  <PlusIcon className="size-3.5 mr-2" />
+                  New Thread
+                </DropdownMenuItem>
+                {conversations.length > 1 && activeConversationId && (
+                  <DropdownMenuItem
+                    onClick={() => deleteConversation(activeConversationId)}
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  >
+                    <TrashIcon className="size-3.5 mr-2" />
+                    Delete Thread
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </header>
 
       <div

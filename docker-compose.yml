@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: research-copilot
+    ports:
+      - "3000:3000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_FAST_MODEL=${OPENROUTER_FAST_MODEL}
+      - OPENROUTER_SMART_MODEL=${OPENROUTER_SMART_MODEL}
+      - DATABASE_PATH=/app/data/research-copilot.db
+      - MAX_CACHED_PAPERS=${MAX_CACHED_PAPERS:-100}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

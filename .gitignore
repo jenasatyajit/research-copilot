@@ -36,3 +36,7 @@ pnpm-debug.log*
 next-env.d.ts
 .kiro/
 .agents/
+
+# SQLite Database local files
+/data/
+*.db*

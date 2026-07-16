@@ -45,3 +45,11 @@ export interface ChatMessage {
   role: ChatRole
   content: string
 }
+
+export interface Conversation {
+  id: string
+  paperId: string
+  title: string | null
+  createdAt: number
+  updatedAt: number
+}

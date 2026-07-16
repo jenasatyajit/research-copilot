@@ -18,6 +18,7 @@ import type {
   PaperSummary,
   ProcessedPaper,
   SectionExplanation,
+  Conversation,
 } from "@/types"
 
 export type AsyncStatus = "idle" | "loading" | "streaming" | "done" | "error"
@@ -54,6 +55,8 @@ interface SessionValue {
   chat: ChatMessage[]
   chatStatus: AsyncStatus
   chatError?: ClientError
+  activeConversationId: string | null
+  conversations: Conversation[]
   processUrl: (url: string) => Promise<void>
   reset: () => void
   retrySummary: () => void
@@ -64,6 +67,9 @@ interface SessionValue {
   closeConcept: () => void
   generateMindMap: () => void
   sendMessage: (question: string) => void
+  switchConversation: (id: string) => Promise<void>
+  createNewConversation: (title?: string) => Promise<void>
+  deleteConversation: (id: string) => Promise<void>
 }
 
 const PaperSessionContext = createContext<SessionValue | null>(null)
@@ -116,6 +122,9 @@ export function PaperSessionProvider({
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [chatStatus, setChatStatus] = useState<AsyncStatus>("idle")
   const [chatError, setChatError] = useState<ClientError | undefined>()
+
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
 
   const paperRef = useRef<ProcessedPaper | null>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -200,6 +209,41 @@ export function PaperSessionProvider({
     [runSummary, runExplanation, runSections, runConcepts]
   )
 
+  const loadConversations = useCallback(async (paperId: string) => {
+    try {
+      const res = await fetch(`/api/conversations?paperId=${paperId}`).then(
+        (r) => r.json() as Promise<{ conversations: Conversation[] }>
+      )
+      let list = res.conversations
+
+      // If no conversations exist, create a default one
+      if (list.length === 0) {
+        const createRes = await postJson<{ conversation: Conversation }>(
+          "/api/conversations",
+          {
+            paperId,
+            title: "Initial Chat",
+          }
+        )
+        list = [createRes.conversation]
+      }
+
+      setConversations(list)
+
+      // Default to the first (most recently updated) conversation
+      const activeId = list[0].id
+      setActiveConversationId(activeId)
+
+      // Load messages for this active conversation
+      const msgRes = await fetch(`/api/conversations/${activeId}/messages`).then(
+        (r) => r.json() as Promise<{ messages: ChatMessage[] }>
+      )
+      setChat(msgRes.messages)
+    } catch (err) {
+      console.error("Failed to load conversations:", err)
+    }
+  }, [])
+
   const reset = useCallback(() => {
     abortRef.current?.abort()
     abortRef.current = null
@@ -216,6 +260,8 @@ export function PaperSessionProvider({
     setChat([])
     setChatStatus("idle")
     setChatError(undefined)
+    setConversations([])
+    setActiveConversationId(null)
   }, [])
 
   const processUrl = useCallback(
@@ -234,13 +280,15 @@ export function PaperSessionProvider({
         setPaper(res.paper)
         setProcessStatus("done")
         startGenerations(res.paper)
+        // Load conversations
+        void loadConversations(res.paper.arxivId || res.paper.id)
       } catch (err) {
         if (isAbort(err)) return
         setProcessStatus("error")
         setProcessError(asClientError(err))
       }
     },
-    [startGenerations]
+    [startGenerations, loadConversations]
   )
 
   const retrySummary = useCallback(() => {
@@ -292,6 +340,83 @@ export function PaperSessionProvider({
     }
   }, [])
 
+  const switchConversation = useCallback(async (id: string) => {
+    setActiveConversationId(id)
+    setChatStatus("loading")
+    try {
+      const msgRes = await fetch(`/api/conversations/${id}/messages`).then(
+        (r) => r.json() as Promise<{ messages: ChatMessage[] }>
+      )
+      setChat(msgRes.messages)
+      setChatStatus("idle")
+    } catch (err) {
+      setChatStatus("error")
+      setChatError(asClientError(err))
+    }
+  }, [])
+
+  const createNewConversation = useCallback(async (title?: string) => {
+    const target = paperRef.current
+    if (!target) return
+    try {
+      const paperKey = target.arxivId || target.id
+      const res = await postJson<{ conversation: Conversation }>(
+        "/api/conversations",
+        {
+          paperId: paperKey,
+          title: title || `Thread ${conversations.length + 1}`,
+        }
+      )
+      setConversations((prev) => [res.conversation, ...prev])
+      setActiveConversationId(res.conversation.id)
+      setChat([])
+      setChatStatus("idle")
+    } catch (err) {
+      console.error("Failed to create new conversation:", err)
+    }
+  }, [conversations])
+
+  const deleteConversation = useCallback(async (id: string) => {
+    const target = paperRef.current
+    if (!target) return
+    try {
+      await fetch(`/api/conversations/${id}`, { method: "DELETE" })
+
+      const updatedList = conversations.filter((c) => c.id !== id)
+
+      // If we deleted the active one, switch to another
+      if (activeConversationId === id) {
+        if (updatedList.length > 0) {
+          const nextActiveId = updatedList[0].id
+          setConversations(updatedList)
+          setActiveConversationId(nextActiveId)
+          // Load messages
+          const msgRes = await fetch(
+            `/api/conversations/${nextActiveId}/messages`
+          ).then((r) => r.json() as Promise<{ messages: ChatMessage[] }>)
+          setChat(msgRes.messages)
+        } else {
+          // Create new default conversation
+          const paperKey = target.arxivId || target.id
+          const createRes = await postJson<{ conversation: Conversation }>(
+            "/api/conversations",
+            {
+              paperId: paperKey,
+              title: "Initial Chat",
+            }
+          )
+          setConversations([createRes.conversation])
+          setActiveConversationId(createRes.conversation.id)
+          setChat([])
+        }
+      } else {
+        setConversations(updatedList)
+      }
+    } catch (err) {
+      console.error("Failed to delete conversation:", err)
+    }
+  }, [conversations, activeConversationId])
+
   const sendMessage = useCallback(
     async (question: string) => {
       const target = paperRef.current
@@ -299,14 +424,16 @@ export function PaperSessionProvider({
       if (!target || !trimmed || chatStatus === "streaming") return
 
       const history = chat
+      const userMsgId = newId()
+      const assistantMsgId = newId()
+
       const userMessage: ChatMessage = {
-        id: newId(),
+        id: userMsgId,
         role: "user",
         content: trimmed,
       }
-      const assistantId = newId()
       const assistantMessage: ChatMessage = {
-        id: assistantId,
+        id: assistantMsgId,
         role: "assistant",
         content: "",
       }
@@ -318,18 +445,38 @@ export function PaperSessionProvider({
       try {
         await streamText(
           "/api/chat",
-          { paper: target, history, question: trimmed },
+          {
+            paper: target,
+            history,
+            question: trimmed,
+            conversationId: activeConversationId,
+            userMessageId: userMsgId,
+            assistantMessageId: assistantMsgId,
+          },
           {
             onChunk: (_, full) =>
               setChat((prev) =>
                 prev.map((m) =>
-                  m.id === assistantId ? { ...m, content: full } : m
+                  m.id === assistantMsgId ? { ...m, content: full } : m
                 )
               ),
             signal: signal(),
           }
         )
         setChatStatus("done")
+
+        // Update updatedAt time of active conversation to sort it to the top
+        if (activeConversationId) {
+          setConversations((prev) =>
+            prev
+              .map((c) =>
+                c.id === activeConversationId
+                  ? { ...c, updatedAt: Date.now() }
+                  : c
+              )
+              .sort((a, b) => b.updatedAt - a.updatedAt)
+          )
+        }
       } catch (err) {
         if (isAbort(err)) return
         const e = asClientError(err)
@@ -337,14 +484,14 @@ export function PaperSessionProvider({
         setChatStatus("error")
         setChat((prev) =>
           prev.map((m) =>
-            m.id === assistantId && !m.content
+            m.id === assistantMsgId && !m.content
               ? { ...m, content: `_${e.message}_` }
               : m
           )
         )
       }
     },
-    [chat, chatStatus]
+    [chat, chatStatus, activeConversationId]
   )
 
   const value = useMemo<SessionValue>(
@@ -361,6 +508,8 @@ export function PaperSessionProvider({
       chat,
       chatStatus,
       chatError,
+      activeConversationId,
+      conversations,
       processUrl,
       reset,
       retrySummary,
@@ -371,6 +520,9 @@ export function PaperSessionProvider({
       closeConcept,
       generateMindMap,
       sendMessage,
+      switchConversation,
+      createNewConversation,
+      deleteConversation,
     }),
     [
       paper,
@@ -385,6 +537,8 @@ export function PaperSessionProvider({
       chat,
       chatStatus,
       chatError,
+      activeConversationId,
+      conversations,
       processUrl,
       reset,
       retrySummary,
@@ -395,6 +549,9 @@ export function PaperSessionProvider({
       closeConcept,
       generateMindMap,
       sendMessage,
+      switchConversation,
+      createNewConversation,
+      deleteConversation,
     ]
   )
 

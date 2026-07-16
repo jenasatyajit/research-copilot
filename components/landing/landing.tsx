@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ArrowRightIcon,
   CircleAlertIcon,
@@ -19,11 +19,24 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
+import type { PaperMeta } from "@/types"
 
 export function Landing() {
   const { processUrl, processStatus, processError } = usePaperSession()
   const [value, setValue] = useState("")
+  const [recentPapers, setRecentPapers] = useState<PaperMeta[]>([])
   const isLoading = processStatus === "loading"
+
+  useEffect(() => {
+    fetch("/api/papers/recent")
+      .then((r) => r.json() as Promise<{ papers: PaperMeta[] }>)
+      .then((data) => {
+        if (data && Array.isArray(data.papers)) {
+          setRecentPapers(data.papers)
+        }
+      })
+      .catch((err) => console.error("Failed to load recent papers list:", err))
+  }, [])
 
   function submit() {
     const url = value.trim()
@@ -32,7 +45,7 @@ export function Landing() {
   }
 
   return (
-    <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6">
+    <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 py-16">
       <BackdropGlow />
 
       <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
@@ -117,6 +130,35 @@ export function Landing() {
               ))}
             </div>
           )}
+
+          {!isLoading && recentPapers.length > 0 && (
+            <div className="mt-12 flex flex-col items-center">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 mb-3.5">
+                Recently Analyzed Papers
+              </h2>
+              <div className="flex flex-col gap-2.5 w-full max-w-xl">
+                {recentPapers.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      setValue(p.sourceUrl)
+                      void processUrl(p.sourceUrl)
+                    }}
+                    className="flex flex-col items-start gap-1 rounded-2xl border border-border/50 bg-card/30 p-4 text-left transition-all hover:border-primary/30 hover:bg-card/70 group"
+                  >
+                    <span className="text-sm font-medium leading-snug line-clamp-1 group-hover:text-primary transition-colors">
+                      {p.title}
+                    </span>
+                    {p.authors && p.authors.length > 0 && (
+                      <span className="text-xs text-muted-foreground/80 line-clamp-1">
+                        {p.authors.join(", ")}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {processError && !isLoading ? (
@@ -133,7 +175,7 @@ export function Landing() {
         ) : null}
       </div>
 
-      <footer className="absolute bottom-6 z-10 text-center text-xs text-muted-foreground">
+      <footer className="mt-16 text-center text-xs text-muted-foreground relative z-10">
         Learning-first · No account needed · arXiv &amp; PDF supported
       </footer>
     </main>

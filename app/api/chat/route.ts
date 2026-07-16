@@ -5,6 +5,8 @@ import { streamCompletion, streamToResponse } from "@/lib/openrouter"
 import { paperInputSchema } from "@/lib/schemas"
 import { buildChatMessages } from "@/prompts/chat"
 import type { ChatMessage, ProcessedPaper } from "@/types"
+import { addMessage } from "@/lib/db/messages"
+import crypto from "crypto"
 
 export const runtime = "nodejs"
 export const maxDuration = 120
@@ -37,6 +39,9 @@ export async function POST(req: Request) {
       paper?: unknown
       history?: unknown
       question?: unknown
+      conversationId?: string
+      userMessageId?: string
+      assistantMessageId?: string
     }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
     const question =
@@ -45,6 +50,22 @@ export async function POST(req: Request) {
       throw new AppError("BAD_REQUEST", "Ask a question to continue.")
     }
     const history = coerceHistory(body.history)
+    const conversationId = body.conversationId
+    const userMessageId = body.userMessageId || crypto.randomUUID()
+    const assistantMessageId = body.assistantMessageId || crypto.randomUUID()
+
+    // 1. If inside a saved conversation, persist user's query
+    if (conversationId) {
+      try {
+        addMessage(conversationId, {
+          id: userMessageId,
+          role: "user",
+          content: question,
+        })
+      } catch (dbErr) {
+        console.error(`[DB Error] Failed to persist user chat message for conversation ${conversationId}:`, dbErr)
+      }
+    }
 
     const generator = streamCompletion({
       model: env.smartModel,
@@ -52,7 +73,29 @@ export async function POST(req: Request) {
       temperature: 0.4,
       maxTokens: 1600,
     })
-    return streamToResponse(generator)
+
+    // 2. Wrap generator to accumulate assistant response and save to DB
+    async function* accumulateAndStream(gen: AsyncGenerator<string, void, unknown>) {
+      let fullText = ""
+      for await (const chunk of gen) {
+        fullText += chunk
+        yield chunk
+      }
+      if (conversationId) {
+        try {
+          addMessage(conversationId, {
+            id: assistantMessageId,
+            role: "assistant",
+            content: fullText,
+          })
+          console.log(`[Cache Write] Persisted assistant chat message for conversation ${conversationId}`)
+        } catch (dbErr) {
+          console.error(`[DB Error] Failed to persist assistant chat message for conversation ${conversationId}:`, dbErr)
+        }
+      }
+    }
+
+    return streamToResponse(accumulateAndStream(generator))
   } catch (err) {
     return errorResponse(err)
   }

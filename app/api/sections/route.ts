@@ -6,6 +6,7 @@ import { completeJson } from "@/lib/openrouter"
 import { paperInputSchema, sectionsResponseSchema } from "@/lib/schemas"
 import { buildSectionsMessages, explainableSections } from "@/prompts/sections"
 import type { ProcessedPaper, SectionExplanation } from "@/types"
+import { findGeneration, saveGeneration } from "@/lib/db/generations"
 
 export const runtime = "nodejs"
 export const maxDuration = 120
@@ -14,12 +15,23 @@ export async function POST(req: Request) {
   try {
     const body = await readJson<{ paper?: unknown }>(req)
     const paper = parseBody(paperInputSchema, body.paper) as ProcessedPaper
+    const paperId = paper.arxivId || paper.id || ""
 
-    const cachedId = getCachedArxivId(paper.arxivId)
+    // 1. Check pre-shipped file cache (for demo papers)
+    const cachedId = getCachedArxivId(paperId)
     if (cachedId) {
       const cachedSections = loadCachedData(cachedId, "sections.json")
       if (cachedSections) {
         return Response.json(cachedSections)
+      }
+    }
+
+    // 2. Check SQLite database cache next
+    if (paperId) {
+      const dbSections = findGeneration(paperId, "sections")
+      if (dbSections) {
+        console.log(`[Cache Hit] Serving sections from SQLite for paper: ${paperId}`)
+        return Response.json(JSON.parse(dbSections))
       }
     }
 
@@ -31,6 +43,8 @@ export async function POST(req: Request) {
       )
     }
 
+    // 3. Generate and cache
+    console.log(`[Cache Miss] Generating sections for paper: ${paperId}`)
     const result = await completeJson(
       {
         model: env.fastModel,
@@ -53,7 +67,12 @@ export async function POST(req: Request) {
       }
     })
 
-    return Response.json({ sections: explanations })
+    const responsePayload = { sections: explanations }
+    if (paperId) {
+      saveGeneration(paperId, "sections", JSON.stringify(responsePayload), env.fastModel)
+    }
+
+    return Response.json(responsePayload)
   } catch (err) {
     return errorResponse(err)
   }
