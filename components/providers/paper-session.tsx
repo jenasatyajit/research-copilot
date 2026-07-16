@@ -4,10 +4,12 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react"
+import { useParams, useRouter } from "next/navigation"
 
 import type { ClientError } from "@/lib/errors"
 import { postJson, streamText } from "@/lib/fetcher"
@@ -96,6 +98,10 @@ export function PaperSessionProvider({
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
+  const params = useParams()
+  const routePaperId = params?.id as string | undefined
+
   const [paper, setPaper] = useState<ProcessedPaper | null>(null)
   const [processStatus, setProcessStatus] = useState<AsyncStatus>("idle")
   const [processError, setProcessError] = useState<ClientError | undefined>()
@@ -262,7 +268,32 @@ export function PaperSessionProvider({
     setChatError(undefined)
     setConversations([])
     setActiveConversationId(null)
-  }, [])
+    router.push("/")
+  }, [router])
+
+  const loadPaperById = useCallback(async (id: string) => {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+    setProcessStatus("loading")
+    setProcessError(undefined)
+    try {
+      const res = await postJson<{ paper: ProcessedPaper }>(
+        "/api/process",
+        { paperId: id },
+        abortRef.current.signal
+      )
+      paperRef.current = res.paper
+      setPaper(res.paper)
+      setProcessStatus("done")
+      startGenerations(res.paper)
+      // Load conversations
+      void loadConversations(res.paper.arxivId || res.paper.id)
+    } catch (err) {
+      if (isAbort(err)) return
+      setProcessStatus("error")
+      setProcessError(asClientError(err))
+    }
+  }, [startGenerations, loadConversations])
 
   const processUrl = useCallback(
     async (url: string) => {
@@ -282,14 +313,28 @@ export function PaperSessionProvider({
         startGenerations(res.paper)
         // Load conversations
         void loadConversations(res.paper.arxivId || res.paper.id)
+        router.push(`/papers/${res.paper.arxivId || res.paper.id}`)
       } catch (err) {
         if (isAbort(err)) return
         setProcessStatus("error")
         setProcessError(asClientError(err))
       }
     },
-    [startGenerations, loadConversations]
+    [startGenerations, loadConversations, router]
   )
+
+  useEffect(() => {
+    if (routePaperId) {
+      const currentPaperId = paperRef.current?.arxivId || paperRef.current?.id
+      if (currentPaperId !== routePaperId) {
+        void loadPaperById(routePaperId)
+      }
+    } else {
+      if (paperRef.current) {
+        reset()
+      }
+    }
+  }, [routePaperId, loadPaperById, reset])
 
   const retrySummary = useCallback(() => {
     if (paperRef.current) void runSummary(paperRef.current)
