@@ -37,6 +37,7 @@ export function findPaper(arxivId: string): ProcessedPaper | null {
     categories: row.categories ? JSON.parse(row.categories) : undefined,
     sections: JSON.parse(row.sections),
     fullText: row.full_text,
+    references: row.references_text || undefined,
     wordCount: row.word_count,
   }
 }
@@ -51,8 +52,8 @@ export function savePaper(paper: ProcessedPaper): void {
   db.prepare(`
     INSERT INTO papers (
       arxiv_id, title, authors, abstract, source, source_url, pdf_url,
-      published, categories, sections, full_text, word_count, created_at, last_accessed_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      published, categories, sections, full_text, references_text, word_count, created_at, last_accessed_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(arxiv_id) DO UPDATE SET
       title = excluded.title,
       authors = excluded.authors,
@@ -64,6 +65,7 @@ export function savePaper(paper: ProcessedPaper): void {
       categories = excluded.categories,
       sections = excluded.sections,
       full_text = excluded.full_text,
+      references_text = excluded.references_text,
       word_count = excluded.word_count,
       last_accessed_at = excluded.last_accessed_at
   `).run(
@@ -78,6 +80,7 @@ export function savePaper(paper: ProcessedPaper): void {
     paper.categories ? JSON.stringify(paper.categories) : null,
     JSON.stringify(paper.sections),
     paper.fullText,
+    paper.references || null,
     paper.wordCount,
     now,
     now

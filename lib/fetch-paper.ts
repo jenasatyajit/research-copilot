@@ -11,7 +11,7 @@ import {
 import { MAX_CONTEXT_CHARS } from "./constants"
 import { AppError } from "./errors"
 import { downloadPdf, extractPdfText } from "./pdf"
-import { detectSections } from "./sections"
+import { detectSections, stripTrailingSections } from "./sections"
 
 function isHttpUrl(value: string): boolean {
   try {
@@ -61,10 +61,11 @@ export async function processPaper(rawInput: string): Promise<ProcessedPaper> {
 
   const pdfUrl = isArxiv ? buildArxivPdfUrl(arxivId) : input
   const bytes = await downloadPdf(pdfUrl)
-  const fullText = await extractPdfText(bytes)
-  const sections = detectSections(fullText)
+  const rawText = await extractPdfText(bytes)
+  const sections = detectSections(rawText)
+  const { body, references } = stripTrailingSections(rawText)
 
-  let title = guessTitle(fullText)
+  let title = guessTitle(rawText)
   let authors: string[] = []
   let abstract = ""
   let published: string | undefined
@@ -102,7 +103,8 @@ export async function processPaper(rawInput: string): Promise<ProcessedPaper> {
     published,
     categories,
     sections,
-    fullText: fullText.slice(0, MAX_CONTEXT_CHARS),
-    wordCount: countWords(fullText),
+    fullText: body.slice(0, MAX_CONTEXT_CHARS),
+    references: references || undefined,
+    wordCount: countWords(body),
   }
 }

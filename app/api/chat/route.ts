@@ -71,7 +71,13 @@ export async function POST(req: Request) {
 
     const generator = streamCompletion({
       model: env.smartModel,
-      messages: buildChatMessages(paper, history, question, mode),
+      messages: buildChatMessages({
+        paper,
+        history,
+        question,
+        mode,
+        references: paper.references,
+      }),
       temperature: 0.4,
       maxTokens: 1600,
     })

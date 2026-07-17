@@ -13,6 +13,7 @@ export const paperInputSchema = z.object({
   authors: z.array(z.string()).default([]),
   abstract: z.string().default(""),
   fullText: z.string().min(1),
+  references: z.string().optional(),
   sections: z.array(rawSectionSchema).default([]),
   source: z.string().optional(),
   sourceUrl: z.string().optional(),

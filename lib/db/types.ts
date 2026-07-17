@@ -12,6 +12,7 @@ export interface DBPaperRow {
   categories: string | null // JSON string (string[])
   sections: string // JSON string (RawSection[])
   full_text: string
+  references_text: string | null
   word_count: number
   created_at: number
   last_accessed_at: number

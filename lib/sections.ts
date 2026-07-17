@@ -101,3 +101,69 @@ export function detectSections(fullText: string): RawSection[] {
     ? sections
     : [{ id: slugify("full-paper", 0), title: "Full paper", content: fullText }]
 }
+
+
+/**
+ * Regex matching trailing section headings that should be stripped from
+ * the main body text (references, bibliography, acknowledgments, appendix).
+ */
+const TRAILING_SECTION_HEADING =
+  /^(?:\d{1,2}\.?\s+)?(references|bibliography|acknowledg(?:e?ments?)?|appendix(?:es)?)\b/i
+
+export interface StrippedText {
+  /** Paper body without references/appendix/acknowledgments. */
+  body: string
+  /** Extracted references section text (empty string if not found). */
+  references: string
+}
+
+/**
+ * Split raw paper text into body (main content) and references.
+ * Finds the first trailing section heading (references/bibliography/acknowledgments/appendix)
+ * and splits there. Everything from that heading onward is considered non-body.
+ * The references text specifically captures only the references/bibliography portion.
+ */
+export function stripTrailingSections(fullText: string): StrippedText {
+  const lines = fullText.split("\n")
+  let splitIndex = -1
+  let referencesStart = -1
+  let referencesEnd = -1
+
+  // Scan for trailing headings
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim()
+    if (trimmed.length < 3 || trimmed.length > 80) continue
+
+    // Check if this line is a trailing section heading
+    if (TRAILING_SECTION_HEADING.test(trimmed) || (isHeading(trimmed) && TRAILING_SECTION_HEADING.test(trimmed.replace(NUMBERED, "$4")))) {
+      // First trailing section sets the body cutoff
+      if (splitIndex === -1) {
+        splitIndex = i
+      }
+
+      // Track references/bibliography specifically
+      if (/references|bibliography/i.test(trimmed)) {
+        referencesStart = i
+      } else if (referencesStart !== -1 && referencesEnd === -1) {
+        // A new heading after references started → end of references
+        referencesEnd = i
+      }
+    }
+  }
+
+  // No trailing sections found — everything is body
+  if (splitIndex === -1) {
+    return { body: fullText, references: "" }
+  }
+
+  const body = lines.slice(0, splitIndex).join("\n").trim()
+
+  // Extract references text
+  let references = ""
+  if (referencesStart !== -1) {
+    const refEnd = referencesEnd !== -1 ? referencesEnd : lines.length
+    references = lines.slice(referencesStart, refEnd).join("\n").trim()
+  }
+
+  return { body, references }
+}

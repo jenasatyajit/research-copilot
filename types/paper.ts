@@ -26,7 +26,9 @@ export interface PaperMeta {
 
 export interface ProcessedPaper extends PaperMeta {
   sections: RawSection[]
-  /** Full cleaned text of the paper, used as AI context. */
+  /** Full cleaned text of the paper (without references/appendix), used as AI context. */
   fullText: string
+  /** Raw references/bibliography section text, available for on-demand chat use. */
+  references?: string
   wordCount: number
 }
